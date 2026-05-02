@@ -1,0 +1,7 @@
+import random
+
+def get_sensor_data():
+    return {
+        "temperature": random.randint(30, 40),
+        "humidity": random.randint(40, 90)
+    }
