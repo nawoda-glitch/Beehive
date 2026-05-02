@@ -1,0 +1,507 @@
+/* src/App.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@700&display=swap');
+
+:root {
+  /* Hive Dark Theme Colors */
+  --bg-dark: #0a0a0a;           /* Deep Black (Hexagonal cell depth) */
+  --bg-card: #141414;          /* Slightly lighter black for cards */
+  --primary-gold: #ffb700;     /* Vibrant Bee Gold */
+  --honey-accent: #ff8c00;     /* Deep Orange/Honey */
+  --text-main: #fcfcfc;        /* Off-white for high contrast */
+  --text-muted: #888888;       /* Muted gray */
+  --success-green: #00e676;    /* For healthy status */
+  --danger-red: #ff3d00;       /* For alerts */
+  
+  --shadow-card: 0 4px 20px rgba(255, 183, 0, 0.05); /* Subtle Gold Shadow */
+  --font-main: 'Inter', sans-serif;
+  --font-header: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: var(--bg-dark);
+  margin: 0;
+  font-family: var(--font-main);
+  color: var(--text-main);
+}
+
+.dashboard-container {
+  padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Header Styling (Golden Accent) */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background: var(--bg-card);
+  padding: 20px 30px;
+  border-radius: 16px;
+  border: 1px solid #222;
+  box-shadow: var(--shadow-card);
+  border-left: 5px solid var(--primary-gold); /* Golden Accent Line */
+}
+
+.app-header h1 {
+  font-family: var(--font-header);
+  color: var(--primary-gold);
+  text-shadow: 0 0 10px rgba(255, 183, 0, 0.3); /* Subtle glow */
+}
+
+/* Layout Grids */
+.dashboard-main-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 25px;
+  margin-top: 25px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.bot-full-width {
+  grid-column: 1 / -1;
+  margin-top: 25px;
+}
+
+/* Common Themed Card Style (Add this class to all modular components) */
+.dashboard-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid #222; /* Subtle border for separation */
+  padding: 25px;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary-gold); /* Glows gold on hover */
+}
+
+/* Loading Screen */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: var(--primary-gold);
+}
+
+.loader {
+  border: 4px solid #333;
+  border-top: 4px solid var(--primary-gold);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Status Badge */
+.status-badge {
+  background: rgba(0, 230, 118, 0.1);
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: 1px solid var(--success-green);
+  font-size: 0.8rem;
+}
+
+/* Add this to App.css or a dedicated Cards.css */
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+}
+
+.metric-card .icon {
+  font-size: 1.5rem;
+  color: var(--honey-accent);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.metric-card h2 {
+  font-size: 2.5rem;
+  margin: 0;
+  color: var(--text-main);
+  font-weight: 800;
+}
+
+.metric-card p {
+  margin: 5px 0 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Add this to App.css or HiveIntelligence.css */
+.confidence-container {
+  height: 8px;
+  background: #1a1a1a;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.confidence-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-gold), var(--honey-accent)); /* Honey Gradient ✅ */
+  border-radius: 10px;
+  transition: width 1s ease;
+}
+
+/* Golden Dark Bee Card */
+.dashboard-card {
+  background: var(--bg-card); /* #141414 */
+  border-radius: 24px; /* Extra rounded like your image */
+  padding: 30px;
+  border: 1px solid #222;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* The Horizontal Summary Row (Top of your image) */
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  padding-bottom: 20px;
+  margin-bottom: 10px;
+}
+
+.stat-group {
+  text-align: left;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+/* Color Overrides for States */
+.text-warning { color: var(--primary-gold); }
+.text-danger { color: var(--danger-red); }
+.text-success { color: var(--success-green); }
+
+/* The "Action Required" Box */
+.alert-box {
+  background: rgba(255, 61, 0, 0.1);
+  border: 1px solid var(--danger-red);
+  color: var(--danger-red);
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+/* Golden Dark Chatbot Styling */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card); /* #141414 */
+  border-radius: 24px;
+  border: 1px solid #222;
+  box-shadow: var(--shadow-card);
+  height: 500px; /* Fixed height for dashboard consistency */
+  overflow: hidden;
+}
+
+.chat-header {
+  padding: 15px 20px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-gold) transparent;
+}
+
+/* User Bubble - Subtle Gray */
+.msg-user {
+  align-self: flex-end;
+  background: #2d2d2d;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 18px 18px 0 18px;
+  max-width: 80% ;
+  font-size: 0.9rem;
+}
+
+/* Bot Bubble - Golden/Honey */
+.msg-bot {
+  align-self: flex-start;
+  background: linear-gradient(135deg, var(--primary-gold), var(--honey-accent));
+  color: #000; /* Dark text on gold for readability */
+  padding: 10px 16px;
+  border-radius: 18px 18px 18px 0;
+  max-width: 80% ;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(255, 183, 0, 0.2);
+}
+
+.chat-input-area {
+  padding: 15px;
+  background: #1a1a1a;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid #333;
+}
+
+.chat-input {
+  flex: 1;
+  background: #0a0a0a;
+  border: 1px solid #333;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 12px;
+  outline: none;
+}
+
+.chat-input:focus {
+  border-color: var(--primary-gold);
+}
+
+.chat-send-btn {
+  background: var(--primary-gold);
+  border: none;
+  border-radius: 10px;
+  padding: 0 15px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.2s;
+}
+
+.chat-send-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Avatar styling from image */
+.bot-avatar {
+  background: #fef3c7; /* Light golden circle */
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.quick-actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 0 10px;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid #333;
+  color: var(--text-main);
+  padding: 12px 20px;
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.action-button:hover {
+  background: #1a1a1a;
+  border-color: var(--primary-gold);
+  transform: translateX(5px);
+}
+
+.action-icon {
+  margin-right: 12px;
+  font-size: 1.1rem;
+}
+
+/* Update Bot Message for the "Instructional" look in your image */
+.msg-bot:first-child {
+  background: rgba(255, 183, 0, 0.05);
+  border-left: 4px solid var(--primary-gold);
+  color: var(--text-main);
+  border-radius: 8px;
+  font-weight: 400;
+}
+/* Container Override */
+.chatbot-card {
+    height: 600px;
+    padding: 0 !important; /* Let children handle padding */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Expert Bot Header */
+.chat-header {
+    background: #1a1a1a;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid #222;
+}
+
+.bot-avatar {
+    background: var(--primary-gold);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 0 15px rgba(255, 183, 0, 0.4);
+}
+
+.gold-text {
+    color: var(--primary-gold);
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.online-indicator {
+    color: var(--success-green);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Message Bubbles */
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.msg-bot {
+    background: #1c1c1c;
+    border-left: 4px solid var(--primary-gold);
+    color: var(--text-main);
+    padding: 12px 18px;
+    border-radius: 4px 15px 15px 15px;
+    max-width: 85%;
+    font-size: 0.95rem;
+}
+
+.msg-user {
+    align-self: flex-end;
+    background: #333;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 15px 15px 4px 15px;
+    max-width: 80%;
+    font-size: 0.9rem;
+}
+
+/* Expert Concern Buttons (Pills) */
+.quick-actions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.action-pill {
+    background: #111;
+    border: 1px solid #222;
+    color: var(--text-main);
+    padding: 14px 20px;
+    border-radius: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.action-pill:hover {
+    border-color: var(--primary-gold);
+    background: #1a1a1a;
+    transform: translateX(8px);
+}
+
+.pill-icon {
+    font-size: 1.2rem;
+}
+
+/* Input Area */
+.chat-input-area {
+    padding: 20px;
+    background: #1a1a1a;
+    border-top: 1px solid #222;
+    display: flex;
+    gap: 12px;
+}
+
+.chat-input {
+    flex: 1;
+    background: #000;
+    border: 1px solid #333;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    outline: none;
+}
+
+.chat-input:focus {
+    border-color: var(--primary-gold);
+}
+
+.send-btn-gold {
+    background: var(--primary-gold);
+    color: black;
+    border: none;
+    padding: 0 20px;
+    border-radius: 10px;
+    font-weight: 800;
+    cursor: pointer;
+}
