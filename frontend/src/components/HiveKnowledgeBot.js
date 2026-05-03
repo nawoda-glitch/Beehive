@@ -1,13 +1,38 @@
 import React, { useState } from 'react';
 
-const HiveKnowledgeBot = () => {
+const HiveKnowledgeBot = ({ data, aiData }) => {
   const [step, setStep] = useState('start');
   const [history, setHistory] = useState([]);
 
   // Helper to handle navigation
   const navigateTo = (nextStep) => {
+    if (nextStep === 'diagnostic') {
+      generateDiagnostic();
+      return;
+    }
     setHistory([...history, step]);
     setStep(nextStep);
+  };
+
+  const [diagnosticResult, setDiagnosticResult] = useState('');
+
+  const generateDiagnostic = () => {
+    if (!data || !aiData) return;
+    
+    let diagnosis = `Current Status: Your hive is ${aiData.status?.health?.toLowerCase() || 'stable'}. `;
+    diagnosis += `The internal temperature is ${data.tempInside}°C and humidity is ${data.humInside}%. `;
+    
+    if (aiData.risk_score > 60) {
+      diagnosis += "URGENT: High risk detected! Recommendations: " + aiData.reasons.join(", ");
+    } else if (aiData.status?.swarm !== 'Low') {
+      diagnosis += "Warning: High swarming risk. Consider adding space.";
+    } else {
+      diagnosis += "Everything looks optimal. No immediate action required.";
+    }
+    
+    setDiagnosticResult(diagnosis);
+    setHistory([...history, step]);
+    setStep('diagnostic_result');
   };
 
   const goBack = () => {
@@ -20,6 +45,7 @@ const HiveKnowledgeBot = () => {
     start: {
       question: "Welcome to the Bee-Expert Knowledge Base. What is the primary concern?",
       options: [
+        { label: "⚡ Run Live AI Diagnostic", next: "diagnostic" },
         { label: "🔊 Unusual Sounds (Roaring/Hissing)", next: "roaring" },
         { label: "🌡️ Temperature/Weather Issues", next: "heat" },
         { label: "🐝 Entrance Behavior (Bearding/Fighting)", next: "entrance" },
@@ -78,7 +104,8 @@ const HiveKnowledgeBot = () => {
     varroa_advice: { question: "AI Conclusion: Mite Infestation. ACTION: Perform an Alcohol Wash. If mite count is >3 per 100 bees, treat with Formic Pro or Oxalic Acid.", options: [] },
     brood_issue: { question: "AI Conclusion: Poor Queen or Disease. ACTION: Could be European Foulbrood (EFB). Contact a local inspector if brood smells sour.", options: [] },
     disease_advice: { question: "AI Conclusion: Tracheal Mites or Nosema. ACTION: Check for 'K-wing' deformity. Feed with Fumidil-B if Nosema is suspected.", options: [] },
-    winter_prep: { question: "AI Conclusion: Winter Prep. ACTION: Normal for autumn. The colony is evicting drones to save food for winter.", options: [] }
+    winter_prep: { question: "AI Conclusion: Winter Prep. ACTION: Normal for autumn. The colony is evicting drones to save food for winter.", options: [] },
+    diagnostic_result: { question: diagnosticResult, options: [] }
   };
 
   const currentStep = knowledgeTree[step] || knowledgeTree['start'];

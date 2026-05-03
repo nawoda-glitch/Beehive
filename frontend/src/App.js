@@ -175,7 +175,7 @@ function App() {
 
       {/* 4. BOTTOM ROW: KNOWLEDGE BASE */}
       <div className="bot-full-width">
-         <HiveKnowledgeBot />
+         <HiveKnowledgeBot data={data} aiData={aiData} />
       </div>
     </div>
   );
