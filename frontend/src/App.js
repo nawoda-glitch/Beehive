@@ -148,7 +148,19 @@ function App() {
             </small>
           </div>
         </div>
+        
         <div style={{ textAlign: 'right' }}>
+          <div style={{ marginBottom: '10px' }}>
+             <a 
+               href="https://bee-monitor.onrender.com/" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               className="portalBtn"
+               style={{ padding: '8px 20px', fontSize: '0.7rem' }}
+             >
+               Launch Render Hub ↗
+             </a>
+          </div>
           <div className="live-value-gold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>
             SYSTEM TIME: {new Date().toLocaleTimeString()}
           </div>

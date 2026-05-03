@@ -147,6 +147,13 @@ h1, h2, h3 {
 }
 
 /* --- 7. RESPONSIVE UTILITIES --- */
+.bot-full-width {
+  width: 100%;
+  margin-top: 40px;
+  position: relative;
+  z-index: 10;
+}
+
 .dashboard-main-grid {
   display: grid;
   grid-template-columns: 1fr 400px;
