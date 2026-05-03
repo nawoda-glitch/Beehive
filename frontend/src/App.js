@@ -64,7 +64,7 @@ function App() {
   useEffect(() => {
     if (!data) return;
 
-    fetch("https://beehiveapi.vercel.app/api"), {
+    fetch("https://beehiveapi.vercel.app/predict-advanced", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -79,7 +79,7 @@ function App() {
     .then(res => setAiData(res))
     .catch(err => console.error("AI Sync Error:", err));
 
-    fetch("https://beehiveapi.vercel.app/api", {
+    fetch("https://beehiveapi.vercel.app/predict-external-threat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ soundOutside: data.soundOutside })
@@ -95,11 +95,11 @@ function App() {
 
     const autoPredictHiveStatus = async () => {
       try {
-        const response = await fetch("https://beehiveapi.vercel.app/api", {
+        const response = await fetch("https://beehiveapi.vercel.app/predict-hive-intelligence", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            sound_level: data.soundInside,
+            soundInside: data.soundInside,
             temperature: data.tempInside,
             vibration: data.vibration
           }),
