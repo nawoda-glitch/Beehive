@@ -295,5 +295,6 @@ def chat():
     return {"response": "Hello from the Bee Hive AI!"}
 
 if __name__ == '__main__':
-    print("🐝 Beehive AI Engine is running at http://localhost:5000")
-    app.run(port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    print(f"🐝 Beehive AI Engine is running at http://localhost:{port}")
+    app.run(host="0.0.0.0", port=port, debug=False)
