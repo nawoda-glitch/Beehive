@@ -1,46 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { API_BASE_URL } from "../config";
 
 const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPrediction }) => {
   const [file, setFile] = useState(null);
   const [manualPrediction, setManualPrediction] = useState(null);
   const [liveStreamPrediction, setLiveStreamPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [liveLoading, setLiveLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [liveError, setLiveError] = useState(null);
   
   const [isStreaming, setIsStreaming] = useState(false);
+  const mediaRecorderRef = useRef(null);
   const streamIntervalRef = useRef(null);
 
-  // BUG 5 FIX: The two endpoints return different shapes:
-  //   /predict-external-threat (live sensor): { detection, confidence, is_threat, source }
-  //   /predict-sound (mic file upload):       { label, confidence, status }
-  // We normalise both into a common shape here.
-  const normalizePrediction = (pred) => {
-    if (!pred) return null;
-    return {
-      text: pred.detection || pred.label || null,
-      confidence: pred.confidence || 0,
-      isHornet: (pred.detection === "Hornets" || pred.label === "Hornets" || pred.is_threat === true),
-      source: pred.source || (pred.label ? "ML Mic Analysis" : "Sensor Estimate")
-    };
-  };
+  // We use the live stream prediction if active, otherwise fallback to the scalar prediction (or 'Scanning...')
+  const activeLivePrediction = isStreaming ? liveStreamPrediction : externalPrediction;
 
-  // We use the live stream prediction if active, otherwise fall back to the scalar sensor prediction
-  const activeLiveRaw = isStreaming ? liveStreamPrediction : externalPrediction;
-  const activeLive = normalizePrediction(activeLiveRaw);
-  const manualNorm = normalizePrediction(manualPrediction);
+  // Live prediction logic
+  const isLiveHornet = activeLivePrediction?.detection === "Hornets" || activeLivePrediction?.label === "Hornets";
+  const liveDetectionText = activeLivePrediction?.detection || activeLivePrediction?.label || "Scanning...";
+  const liveConfidenceVal = activeLivePrediction?.confidence || 0;
 
-  // Convenience aliases
-  const isLiveHornet = activeLive?.isHornet || false;
-  const liveDetectionText = activeLive?.text || (isStreaming ? "Listening..." : "Scanning...");
-  const liveConfidenceVal = activeLive?.confidence || 0;
-  const liveSource = activeLive?.source || "";
-
-  const isManualHornet = manualNorm?.isHornet || false;
-  const manualDetectionText = manualNorm?.text || "Awaiting File...";
-  const manualConfidenceVal = manualNorm?.confidence || 0;
-  const manualSource = manualNorm?.source || "";
+  // Manual prediction logic
+  const isManualHornet = manualPrediction?.detection === "Hornets" || manualPrediction?.label === "Hornets";
+  const manualDetectionText = manualPrediction?.detection || manualPrediction?.label || "Awaiting File...";
+  const manualConfidenceVal = manualPrediction?.confidence || 0;
 
   const analyzeExternalSound = async () => {
     if (!file) return alert("Please select a .wav file first!");
@@ -55,10 +38,9 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
         body: formData,
       });
       const result = await res.json();
-      if (result.error) throw new Error(result.error);
       setManualPrediction(result);
     } catch (err) { 
-      setError("Analysis failed: " + err.message); 
+      setError("Analysis failed."); 
       console.error(err);
     } finally { 
       setLoading(false); 
@@ -70,37 +52,29 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       setIsStreaming(true);
-      setLiveError(null);
       
       const recordAndSend = () => {
-        if (!isStreaming) return;
         const mediaRecorder = new MediaRecorder(stream);
         const audioChunks = [];
         
         mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) audioChunks.push(event.data);
+          audioChunks.push(event.data);
         };
         
         mediaRecorder.onstop = async () => {
-          if (audioChunks.length === 0) return;
-          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
           const formData = new FormData();
-          formData.append('file', audioBlob, 'live_stream.webm');
+          formData.append('file', audioBlob, 'live_stream.wav');
           
-          setLiveLoading(true);
           try {
             const res = await fetch("/api/predict-sound", {
               method: "POST",
               body: formData,
             });
             const result = await res.json();
-            if (result.error) throw new Error(result.error);
             setLiveStreamPrediction(result);
           } catch (err) {
             console.error("Live Stream API Error:", err);
-            setLiveError("Stream interrupted");
-          } finally {
-            setLiveLoading(false);
           }
         };
         
@@ -110,32 +84,37 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
         }, 3000); // Record for 3 seconds
       };
       
+      // Start the first recording immediately, then loop every 3.5 seconds
       recordAndSend();
-      streamIntervalRef.current = setInterval(recordAndSend, 4000); // 3s record + 1s buffer
+      streamIntervalRef.current = setInterval(recordAndSend, 3500);
 
     } catch (err) {
       console.error("Microphone access denied:", err);
-      setLiveError("Mic permission denied");
-      setIsStreaming(false);
+      alert("Please allow microphone access to simulate live audio monitoring.");
     }
   };
 
   const stopLiveAudioStream = () => {
     setIsStreaming(false);
-    if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
-    setLiveLoading(false);
-    setLiveStreamPrediction(null);
+    clearInterval(streamIntervalRef.current);
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+    // Stop all microphone tracks
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+      stream.getTracks().forEach(track => track.stop());
+    }).catch(e => console.error(e));
   };
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
+      clearInterval(streamIntervalRef.current);
     };
   }, []);
 
   // Helper to render prediction boxes
-  const renderPredictionBox = (title, text, confidence, isHornet, isActive, source) => (
+  const renderPredictionBox = (title, text, confidence, isHornet, isActive) => (
     <div style={{
       ...styles.predictionBox, 
       backgroundColor: isActive ? (isHornet ? 'rgba(229, 62, 62, 0.15)' : 'rgba(56, 161, 105, 0.1)') : 'rgba(255,255,255,0.02)',
@@ -154,9 +133,9 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
         letterSpacing: '2px',
         textShadow: isActive ? (isHornet ? '0 0 15px rgba(255, 77, 77, 0.6)' : '0 0 15px rgba(56, 161, 105, 0.4)') : 'none'
       }}>
-        {title === "Live Classification" && liveLoading ? "⏳ Processing..." : text}
+        {text}
       </h2>
-      {isActive && !liveLoading && (
+      {isActive && (
         <span style={{
            background: 'rgba(0,0,0,0.3)',
            padding: '4px 10px',
@@ -167,14 +146,6 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
         }}>
            Confidence: {confidence}%
         </span>
-      )}
-      {isActive && source && (
-        <span style={{ color: '#888', fontSize: '0.65rem', marginTop: '6px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-          {source}
-        </span>
-      )}
-      {title === "Live Classification" && liveError && (
-        <span style={{ color: '#ff4d4d', fontSize: '0.7rem', marginTop: '5px' }}>⚠️ {liveError}</span>
       )}
     </div>
   );
@@ -192,7 +163,7 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
             ...styles.btn, 
             marginLeft: 'auto',
             backgroundColor: isStreaming ? '#ffb300' : '#e53e3e',
-            boxShadow: isStreaming ? '0 0 15px rgba(255, 179, 0, 0.4)' : '0 4px 15px rgba(229, 62, 62, 0.2)'
+            animation: isStreaming ? 'pulse 2s infinite' : 'none'
           }}
         >
           {isStreaming ? '🛑 Stop Live Mic Stream' : '🎙️ Start Live Mic Stream'}
@@ -204,20 +175,33 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
         <div style={styles.statBox}>
           <span style={styles.label}>Outside Ambient Sound</span>
           <h2 style={styles.value}>{outsideSound || 0} dB</h2>
-          {isStreaming && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ffb300', animation: 'pulse 1.5s infinite' }} />
-              <span style={{color: '#ffb300', fontSize: '0.7rem'}}>Live Stream Active</span>
-            </div>
-          )}
+          {isStreaming && <span style={{color: '#ffb300', fontSize: '0.7rem'}}>Streaming Live Audio...</span>}
         </div>
 
         {/* AI Prediction Display - LIVE */}
-        {renderPredictionBox("Live Classification", liveDetectionText, liveConfidenceVal, isLiveHornet, true, liveSource)}
+        <div style={{ position: 'relative' }}>
+          {renderPredictionBox("Live Classification", liveDetectionText, liveConfidenceVal, isLiveHornet, true)}
+          {isStreaming && (
+            <div style={{
+              position: 'absolute',
+              top: '5px',
+              right: '5px',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: '#ffb300',
+              boxShadow: '0 0 10px #ffb300',
+              animation: 'pulse 1.5s infinite'
+            }} />
+          )}
+        </div>
 
         {/* AI Prediction Display - MANUAL */}
-        {renderPredictionBox("Manual Classification", manualDetectionText, manualConfidenceVal, isManualHornet, !!manualPrediction, manualSource)}
+        {renderPredictionBox("Manual Classification", manualDetectionText, manualConfidenceVal, isManualHornet, !!manualPrediction)}
       </div>
+
+      {error && <div style={{ color: '#ff4d4d', fontSize: '0.8rem', marginTop: '10px', textAlign: 'center' }}>{error}</div>}
+
 
       {/* Manual File Upload Section */}
       <div style={styles.uploadSection}>

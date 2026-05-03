@@ -1,10 +1,10 @@
 {
   "rewrites": [
-    { "source": "/api/predict-advanced",         "destination": "https://nmsanduni123-beehive-api.hf.space/api/predict-advanced" },
-    { "source": "/api/predict-sound",            "destination": "https://nmsanduni123-beehive-api.hf.space/api/predict-sound" },
-    { "source": "/api/predict-external-threat",  "destination": "https://nmsanduni123-beehive-api.hf.space/api/predict-external-threat" },
-    { "source": "/api/predict-hive-intelligence","destination": "https://nmsanduni123-beehive-api.hf.space/api/predict-hive-intelligence" },
-    { "source": "/api/predict-hive-live",        "destination": "https://nmsanduni123-beehive-api.hf.space/api/predict-hive-live" },
+    { "source": "/api/predict-advanced",         "destination": "https://nmsanduni123-beehive-api.hf.space/predict-advanced" },
+    { "source": "/api/predict-sound",            "destination": "https://nmsanduni123-beehive-api.hf.space/predict-sound" },
+    { "source": "/api/predict-external-threat",  "destination": "https://nmsanduni123-beehive-api.hf.space/predict-external-threat" },
+    { "source": "/api/predict-hive-intelligence","destination": "https://nmsanduni123-beehive-api.hf.space/predict-hive-intelligence" },
+    { "source": "/api/predict-hive-live",        "destination": "https://nmsanduni123-beehive-api.hf.space/predict-hive-live" },
     { "source": "/api/chat",                     "destination": "https://nmsanduni123-beehive-api.hf.space/api/chat" }
   ]
 }

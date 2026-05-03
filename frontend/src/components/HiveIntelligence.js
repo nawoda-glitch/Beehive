@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { db } from '../services/firebase';
+import { ref, set } from 'firebase/database';
+import { API_BASE_URL } from "../config";
 
 const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
   const [predictionData, setPredictionData] = useState(null);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [file, setFile] = useState(null);
   const [manualData, setManualData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -13,13 +17,20 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
 
   // --- STYLING LOGIC ---
   const getConfidenceColor = (val) => {
-    if (val > 80) return '#38a169';
-    if (val > 50) return '#ecc94b';
-    return '#e53e3e';
+    if (val > 80) return '#38a169'; // Green
+    if (val > 50) return '#ecc94b'; // Yellow
+    return '#e53e3e'; // Red
   };
 
-  const fetchLivelyPrediction = useCallback(async () => {
-    if (!liveInsideSound || liveInsideSound <= 0) return;
+  const [isStreaming, setIsStreaming] = useState(false);
+  const streamIntervalRef = useRef(null);
+
+  useEffect(() => {
+    if (liveInsideSound > 0 && !isStreaming) fetchLivelyPrediction();
+  }, [timestamp]);
+
+  const fetchLivelyPrediction = async () => {
+    setIsSyncing(true);
     try {
       const res = await fetch("/api/predict-hive-intelligence", {
         method: "POST",
@@ -29,11 +40,8 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
       const result = await res.json();
       setPredictionData(result);
     } catch (err) { console.error("Sync Error:", err); }
-  }, [liveInsideSound, temp]);
-
-  useEffect(() => {
-    fetchLivelyPrediction();
-  }, [timestamp, fetchLivelyPrediction]);
+    finally { setIsSyncing(false); }
+  };
 
   const analyzeHive = async () => {
     if (!file) return alert("Please select a .wav file first!");
@@ -53,11 +61,63 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
     finally { setLoading(false); }
   };
 
+  // --- LIVE MIC STREAM FOR QUEEN STATE ---
+  const startLiveMic = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setIsStreaming(true);
+      
+      const recordAndSend = () => {
+        const mediaRecorder = new MediaRecorder(stream);
+        const audioChunks = [];
+        mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+          const formData = new FormData();
+          formData.append('file', audioBlob, 'live_queen.wav');
+          try {
+            const res = await fetch("/api/predict-hive-intelligence", { method: "POST", body: formData });
+            const result = await res.json();
+            setPredictionData(result);
+          } catch (err) { console.error("Mic Stream Error:", err); }
+        };
+        mediaRecorder.start();
+        setTimeout(() => { if (mediaRecorder.state === 'recording') mediaRecorder.stop(); }, 3000);
+      };
+
+      recordAndSend();
+      streamIntervalRef.current = setInterval(recordAndSend, 3500);
+    } catch (err) {
+      alert("Microphone access denied!");
+    }
+  };
+
+  const stopLiveMic = () => {
+    setIsStreaming(false);
+    clearInterval(streamIntervalRef.current);
+  };
+
+  useEffect(() => {
+    return () => clearInterval(streamIntervalRef.current);
+  }, []);
+
   const manualConf = getConfidence(manualData);
 
   return (
     <div style={styles.card} className="bee-card">
-      <h3 style={styles.title}><span>🧠</span> Hive Brain Intelligence</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h3 style={{ ...styles.title, margin: 0 }}><span>🧠</span> Hive Brain Intelligence</h3>
+        <button 
+          onClick={isStreaming ? stopLiveMic : startLiveMic}
+          style={{
+            ...styles.btn, 
+            backgroundColor: isStreaming ? '#ff4d4d' : '#ffb300',
+            color: isStreaming ? '#fff' : '#000'
+          }}
+        >
+          {isStreaming ? '🛑 Stop Mic' : '🎙️ Start Live Mic'}
+        </button>
+      </div>
       
       {/* 1. TOP BANNER - Dark Gold Theme */}
       <div style={{
