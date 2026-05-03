@@ -41,30 +41,20 @@ sound_model = joblib.load(os.path.join(MODEL_PATH, "insect_classifier_model_larg
 mega_model = joblib.load(os.path.join(MODEL_PATH, "bee_model.pkl"))
 mega_scaler = joblib.load(os.path.join(MODEL_PATH, "bee_scaler.pkl"))
 
+# Load the risk model
+model_risk = joblib.load(os.path.join(MODEL_PATH, "model_risk.pkl"))
 
 # ---------------------------------------------------------
-# 2. ADVANCED LOGIC FUNCTIONS (From Streamlit)
+# 2. ADVANCED LOGIC FUNCTIONS
 # ---------------------------------------------------------
-def calculate_advanced_risk(temp, humidity, sound, outside):
-    """Calculates a mathematical risk score based on biological thresholds."""
-    score = 0
-    # Temperature Stress
-    if temp < 32: score += (32 - temp) * 3
-    elif temp > 36: score += (temp - 36) * 4
-
-    # Humidity Stress
-    if humidity < 50: score += (50 - humidity) * 1.5
-    elif humidity > 75: score += (humidity - 75) * 1.5
-
-    # Sound Anomaly Logic
-    sound_energy = sound * 0.9
-    if sound_energy > 0.6: score += (sound_energy - 0.6) * 100
-    elif sound_energy < 0.3: score += (0.3 - sound_energy) * 80
-
-    # Environmental Impact
-    if outside > 34: score += (outside - 34) * 2
-
-    return round(min(score, 100), 2)
+def get_reasons(t, h, s_norm, risk_score):
+    reasons = []
+    if t > 36: reasons.append("High internal temperature detected")
+    if h > 75: reasons.append("High humidity level (Potential mold risk)")
+    if s_norm > 0.8: reasons.append("Acoustic Anomaly: Excessive vibration/noise")
+    if risk_score > 60: reasons.append("Multiple stress conditions detected")
+    if not reasons: reasons.append("All conditions optimal")
+    return reasons
 
 # ---------------------------------------------------------
 # 3. API ENDPOINT
@@ -72,38 +62,34 @@ def calculate_advanced_risk(temp, humidity, sound, outside):
 
 @app.route('/predict-advanced', methods=['POST'])
 def predict_advanced():
-
     try:
         data = request.json
-        # Pull real-time data from React/Firebase
         t = float(data.get('tempInside', 35))
         h = float(data.get('humInside', 60))
         s = float(data.get('soundInside', 0.5))
         o = float(data.get('tempOutside', 30))
-        v = float(data.get('vibration', 20)) 
+
+        # Normalize sound for ML consistency
+        s_norm = max(0.0, min(1.0, (s - 30) / 60))
 
         # 1. ML Predictions (The "Brain")
-        # Match your Streamlit feature set: [temp, humidity, sound, sound_energy, outside]
-        features = np.array([[t, h, s, s * 0.9, o]])
+        # Features: [temp, humidity, sound, sound_energy, outside]
+        features = np.array([[t, h, s_norm, s_norm * 0.9, o]])
         
         health_pred = model_health.predict(features)[0]
         activity_pred = model_activity.predict(features)[0]
         swarm_pred = model_swarm.predict(features)[0]
+        
+        # Use the ML model for Risk instead of a formula!
+        risk_score_raw = model_risk.predict(features)[0]
+        risk_score = float(max(0, min(100, risk_score_raw)))
 
         health = le_health.inverse_transform([health_pred])[0]
         activity = le_activity.inverse_transform([activity_pred])[0]
         swarm = le_swarm.inverse_transform([swarm_pred])[0]
 
-        # 2. Advanced Risk Logic (The "Logic")
-        risk_score = calculate_advanced_risk(t, h, s, o)
-        
-        # 3. Dynamic Reasoning (The "Explanation")
-        reasons = []
-        if t > 36: reasons.append("High internal temperature detected")
-        if h > 75: reasons.append("High humidity level (Potential mold risk)")
-        if s > 0.7: reasons.append("Acoustic Anomaly: High bee activity")
-        if risk_score > 60: reasons.append("Multiple stress conditions detected")
-        if not reasons: reasons.append("All conditions optimal")
+        # 2. Dynamic Reasoning
+        reasons = get_reasons(t, h, s_norm, risk_score)
 
         # 4. NEXT WEEK HIVE STATUS FORECAST (7 Days)
         forecast_points = []

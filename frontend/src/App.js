@@ -17,6 +17,7 @@ import ExternalSoundSection from './components/ExternalSoundSection';
 import HiveIntelligence from './components/HiveIntelligence';
 import HiveDecisionSupport from './components/HiveDecisionSupport';
 import HiveKnowledgeBot from './components/HiveKnowledgeBot';
+import ExternalHub from './components/ExternalHub';
 
 function App() {
   // --- States ---
@@ -173,9 +174,10 @@ function App() {
          <SoundAnalysisSection />
       </div>
 
-      {/* 4. BOTTOM ROW: KNOWLEDGE BASE */}
-      <div className="bot-full-width">
+      {/* 4. BOTTOM ROW: KNOWLEDGE BASE & EXTERNAL HUB */}
+      <div className="bot-full-width" style={{ display: 'grid', gridTemplateColumns: '450px 1fr', gap: '20px', alignItems: 'start' }}>
          <HiveKnowledgeBot data={data} aiData={aiData} />
+         <ExternalHub />
       </div>
     </div>
   );
