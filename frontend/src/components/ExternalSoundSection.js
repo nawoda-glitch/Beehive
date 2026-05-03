@@ -18,11 +18,10 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
   // We normalise both into a common shape here.
   const normalizePrediction = (pred) => {
     if (!pred) return null;
-    const isSensor = pred.source === "Sensor Estimate (dB-based)";
     return {
       text: pred.detection || pred.label || null,
       confidence: pred.confidence || 0,
-      isHornet: isSensor ? false : (pred.detection === "Hornets" || pred.label === "Hornets" || pred.is_threat === true),
+      isHornet: (pred.detection === "Hornets" || pred.label === "Hornets" || pred.is_threat === true),
       source: pred.source || (pred.label ? "ML Mic Analysis" : "Sensor Estimate")
     };
   };

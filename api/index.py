@@ -101,17 +101,29 @@ def predict_advanced():
         s_norm = db_to_normalized(raw_db)
         sound_energy = s_norm * 0.9
 
-        # 1. ML Predictions — using normalized sound values
-        # Feature set: [temp, humidity, sound_norm, sound_energy, outside_temp]
-        features = np.array([[t, h, s_norm, sound_energy, o]])
-        
-        health_pred = model_health.predict(features)[0]
-        activity_pred = model_activity.predict(features)[0]
-        swarm_pred = model_swarm.predict(features)[0]
-
-        health = le_health.inverse_transform([health_pred])[0]
-        activity = le_activity.inverse_transform([activity_pred])[0]
-        swarm = le_swarm.inverse_transform([swarm_pred])[0]
+        # 1. Biological Expert Rules (Replacing broken ML Models)
+        # Health Logic
+        if t < 33 or t > 37 or h < 45 or h > 75:
+            health = "Warning"
+            if t > 39 or t < 30: health = "Critical"
+        else:
+            health = "Normal"
+            
+        # Activity Logic
+        if raw_db > 65 or v > 40:
+            activity = "High"
+        elif raw_db > 45 or v > 20:
+            activity = "Normal"
+        else:
+            activity = "Low"
+            
+        # Swarm Logic
+        if t >= 34 and t <= 36 and raw_db > 70 and v > 50:
+            swarm = "High"
+        elif raw_db > 60:
+            swarm = "Medium"
+        else:
+            swarm = "Low"
 
         # 2. Advanced Risk Logic — BUG 7 FIX: pass normalized sound, not raw dB
         risk_score = calculate_advanced_risk(t, h, s_norm, o)
@@ -172,10 +184,11 @@ def predict_sound():
     file.save(temp_path)
     
     try:
-        # 1. Feature Extraction (MFCC) 
+        # 1. Feature Extraction (MFCC & Centroid) 
         y, sr = librosa.load(temp_path, sr=16000)
         mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
         mfccs_processed = np.mean(mfccs.T, axis=0).reshape(1, -1)
+        centroid = np.mean(librosa.feature.spectral_centroid(y=y, sr=sr))
     except Exception as e:
         if os.path.exists(temp_path):
             os.remove(temp_path)
@@ -190,9 +203,12 @@ def predict_sound():
     probabilities = sound_model.predict_proba(mfccs_processed)
     confidence = float(np.max(probabilities) * 100)
     
-    # 3. Confidence Gate Logic for Hornets
-    if prediction == "Hornets" and confidence < 85.0:
-        prediction = "noise"  # Downgrade to noise if not highly confident
+    # 3. Confidence & Biological Gate Logic for Hornets
+    if prediction == "Hornets":
+        if confidence < 85.0:
+            prediction = "noise"  # Downgrade to noise if not highly confident
+        elif centroid > 500:
+            prediction = "noise"  # High pitch (like human voice/feedback) is not a hornet
     
     result = {
         "label": prediction,
@@ -212,19 +228,24 @@ def predict_external_threat():
     try:
         data = request.json
         outside_sound_val = float(data.get('soundOutside', 0))
+        vibration = float(data.get('vibration', 0))
         s_norm = db_to_normalized(outside_sound_val)
 
-        # Environmental Noise Estimation
-        if outside_sound_val > 75:
-            prediction = "High Noise Level"
-            is_threat = False # No longer trigger hornet alarm
-            confidence = min(80 + (outside_sound_val - 75), 99.0)
-        elif outside_sound_val > 45:
-            prediction = "Normal Activity"
+        # Smart Realtime Detection using dB + Vibration
+        if outside_sound_val > 75 and vibration > 50:
+            prediction = "Hornets"
+            is_threat = True
+            confidence = min(80 + (outside_sound_val - 75) + (vibration - 50), 99.0)
+        elif outside_sound_val > 45 and vibration > 20:
+            prediction = "Bees"
             is_threat = False
             confidence = 85.0
+        elif outside_sound_val > 75:
+            prediction = "Ambient Noise"
+            is_threat = False
+            confidence = 90.0
         else:
-            prediction = "Quiet Ambient"
+            prediction = "Quiet"
             is_threat = False
             confidence = min((1.0 - s_norm) * 95, 95.0)
 
