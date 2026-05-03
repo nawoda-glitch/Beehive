@@ -3,6 +3,9 @@ import { db } from "./services/firebase";
 import { ref, onValue } from "firebase/database";
 import "./App.css"; // Ensure you have the CSS file created!
 
+
+
+
 // Import your modular components
 import Cards from "./components/Cards";
 import Charts from "./components/Charts";
