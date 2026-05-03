@@ -27,12 +27,12 @@ try:
     lstm_model = load_model(os.path.join(MODEL_PATH, "lstm_model.h5"), compile=False)
     scaler = joblib.load(os.path.join(MODEL_PATH, "scaler.pkl"))
     lstm_available = True
-    print("✅ LSTM model loaded successfully")
+    print("[OK] LSTM model loaded successfully")
 except Exception as e:
     lstm_model = None
     scaler = None
     lstm_available = False
-    print(f"⚠️ LSTM model failed to load: {e}")
+    print(f"[WARN] LSTM model failed to load: {e}")
 
 # Load the sound model
 sound_model = joblib.load(os.path.join(MODEL_PATH, "insect_classifier_model_large.pkl"))
@@ -43,10 +43,24 @@ mega_scaler = joblib.load(os.path.join(MODEL_PATH, "bee_scaler.pkl"))
 
 
 # ---------------------------------------------------------
-# 2. ADVANCED LOGIC FUNCTIONS (From Streamlit)
+# 2. HELPER: dB Normalizer
 # ---------------------------------------------------------
-def calculate_advanced_risk(temp, humidity, sound, outside):
-    """Calculates a mathematical risk score based on biological thresholds."""
+def db_to_normalized(db_val):
+    """
+    Converts a raw dB reading from the INMP441 sensor into a [0.0, 1.0]
+    normalized sound energy value that matches ML model training data.
+    Mapping: 30 dB -> 0.0  |  65 dB -> 0.5  |  100 dB -> 1.0
+    """
+    return round(max(0.0, min(1.0, (float(db_val) - 30.0) / 70.0)), 4)
+
+# ---------------------------------------------------------
+# 3. ADVANCED LOGIC FUNCTIONS
+# ---------------------------------------------------------
+def calculate_advanced_risk(temp, humidity, sound_norm, outside):
+    """
+    Calculates a mathematical risk score based on biological thresholds.
+    sound_norm must be a normalized [0.0, 1.0] value.
+    """
     score = 0
     # Temperature Stress
     if temp < 32: score += (32 - temp) * 3
@@ -56,8 +70,8 @@ def calculate_advanced_risk(temp, humidity, sound, outside):
     if humidity < 50: score += (50 - humidity) * 1.5
     elif humidity > 75: score += (humidity - 75) * 1.5
 
-    # Sound Anomaly Logic
-    sound_energy = sound * 0.9
+    # Sound Anomaly Logic (expects normalized 0-1)
+    sound_energy = sound_norm * 0.9
     if sound_energy > 0.6: score += (sound_energy - 0.6) * 100
     elif sound_energy < 0.3: score += (0.3 - sound_energy) * 80
 
@@ -70,7 +84,7 @@ def calculate_advanced_risk(temp, humidity, sound, outside):
 # 3. API ENDPOINT
 # ---------------------------------------------------------
 
-@app.route('/predict-advanced', methods=['POST'])
+@app.route('/api/predict-advanced', methods=['POST'])
 def predict_advanced():
 
     try:
@@ -78,13 +92,18 @@ def predict_advanced():
         # Pull real-time data from React/Firebase
         t = float(data.get('tempInside', 35))
         h = float(data.get('humInside', 60))
-        s = float(data.get('soundInside', 0.5))
+        raw_db = float(data.get('soundInside', 50))  # Raw dB from INMP441
         o = float(data.get('tempOutside', 30))
-        v = float(data.get('vibration', 20)) 
+        v = float(data.get('vibration', 20))
 
-        # 1. ML Predictions (The "Brain")
-        # Match your Streamlit feature set: [temp, humidity, sound, sound_energy, outside]
-        features = np.array([[t, h, s, s * 0.9, o]])
+        # BUG 1 FIX: Normalize raw dB to [0.0, 1.0] before feeding ML models
+        # INMP441 sends values like 45 dB, 72 dB — models trained on 0-1 scale
+        s_norm = db_to_normalized(raw_db)
+        sound_energy = s_norm * 0.9
+
+        # 1. ML Predictions — using normalized sound values
+        # Feature set: [temp, humidity, sound_norm, sound_energy, outside_temp]
+        features = np.array([[t, h, s_norm, sound_energy, o]])
         
         health_pred = model_health.predict(features)[0]
         activity_pred = model_activity.predict(features)[0]
@@ -94,14 +113,14 @@ def predict_advanced():
         activity = le_activity.inverse_transform([activity_pred])[0]
         swarm = le_swarm.inverse_transform([swarm_pred])[0]
 
-        # 2. Advanced Risk Logic (The "Logic")
-        risk_score = calculate_advanced_risk(t, h, s, o)
+        # 2. Advanced Risk Logic — BUG 7 FIX: pass normalized sound, not raw dB
+        risk_score = calculate_advanced_risk(t, h, s_norm, o)
         
-        # 3. Dynamic Reasoning (The "Explanation")
+        # 3. Dynamic Reasoning
         reasons = []
         if t > 36: reasons.append("High internal temperature detected")
         if h > 75: reasons.append("High humidity level (Potential mold risk)")
-        if s > 0.7: reasons.append("Acoustic Anomaly: High bee activity")
+        if s_norm > 0.7: reasons.append(f"Acoustic Anomaly: High activity detected ({raw_db:.1f} dB)")
         if risk_score > 60: reasons.append("Multiple stress conditions detected")
         if not reasons: reasons.append("All conditions optimal")
 
@@ -140,7 +159,7 @@ def predict_advanced():
     
 import tempfile
 
-@app.route('/predict-sound', methods=['POST'])
+@app.route('/api/predict-sound', methods=['POST'])
 def predict_sound():
     if 'file' not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
@@ -180,56 +199,90 @@ def predict_sound():
     
     return jsonify(result)
 
-@app.route('/predict-external-threat', methods=['POST'])
+@app.route('/api/predict-external-threat', methods=['POST'])
 def predict_external_threat():
+    """
+    BUG 2 FIX: Live sensor only provides a scalar dB value — MFCC extraction
+    is impossible. We use biologically-calibrated sigmoid confidence curves
+    instead of arbitrary hard thresholds. This gives smooth, realistic scores.
+    Hornet colony: typically 70-90+ dB outside hive.
+    Bees foraging: typically 45-70 dB.
+    Ambient/Noise: < 45 dB.
+    """
     try:
         data = request.json
-        outside_sound_val = float(data.get('soundOutside', 0)) 
-        
-        # --- Smart Heuristics for Live Sensor (dB only) ---
-        # Since scalar dB values cannot be converted to 13 MFCC arrays for the ML model,
-        # we rely on realistic dB thresholds to determine continuous baseline threat levels.
-        if outside_sound_val >= 85:
+        outside_sound_val = float(data.get('soundOutside', 0))
+        s_norm = db_to_normalized(outside_sound_val)
+
+        # Sigmoid-based probability curves for realistic sensor estimation
+        import math
+        # Hornet probability: rises sharply above 70 dB (normalized ~0.57)
+        hornet_prob = 1.0 / (1.0 + math.exp(-12.0 * (s_norm - 0.60)))
+        # Bee probability: peaks in mid-range (40-70 dB)
+        bee_prob = math.exp(-0.5 * ((s_norm - 0.22) / 0.18) ** 2)
+
+        if hornet_prob > 0.50:
             prediction = "Hornets"
-            confidence = min(99.9, 85.0 + (outside_sound_val - 85) * 1.5)
+            confidence = round(hornet_prob * 100, 2)
             is_threat = True
-        elif outside_sound_val >= 50:
+        elif s_norm > 0.15 and bee_prob > 0.25:
             prediction = "Bees"
-            confidence = min(95.0, 75.0 + (outside_sound_val - 50))
+            confidence = round(min(bee_prob * 100, 92.0), 2)
             is_threat = False
         else:
-            prediction = "Noise"
-            confidence = max(70.0, 99.0 - outside_sound_val)
+            prediction = "Ambient Noise"
+            confidence = round(min((1.0 - s_norm) * 95, 95.0), 2)
             is_threat = False
 
         return jsonify({
             "detection": prediction,
-            "confidence": round(confidence, 2),
-            "is_threat": is_threat
+            "confidence": confidence,
+            "is_threat": is_threat,
+            "db_level": outside_sound_val,
+            "normalized": s_norm,
+            "source": "Sensor Estimate (dB-based)"
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route('/predict-hive-intelligence', methods=['POST'])
+@app.route('/api/predict-hive-intelligence', methods=['POST'])
 def predict_hive_intelligence():
     try:
-        # --- Case A: Lively Sensor Data from Firebase (JSON) ---
+        # --- Case A: Live Sensor Data from Firebase (JSON) ---
+        # BUG 3 FIX: Use normalized dB, dynamic confidence, and temperature co-factor.
+        # Cannot run MFCC analysis on scalar values, so we use biologically-calibrated
+        # thresholds with confidence based on distance from decision boundary.
         if request.is_json:
+            import math
             data = request.get_json()
             db_level = float(data.get('soundInside', 0))
+            temp = float(data.get('temperature', 35))
+            s_norm = db_to_normalized(db_level)
+
+            # Queen detection: queenless hives roar louder (high dB = high s_norm)
+            # Decision boundary at ~0.65 normalized (~75 dB)
+            # Confidence = how far from boundary (0.5 = boundary = 50% conf)
+            boundary = 0.65
+            distance = abs(s_norm - boundary)
+            base_confidence = 50.0 + (distance / 0.35) * 45.0  # scales 50%->95%
             
-            # --- Smart Heuristics for Internal Live Sensor ---
-            # ML Model requires 26 MFCCs, so we use dB heuristics for continuous monitoring
-            pred = "Queenless (Internal Roar)" if db_level >= 85 else "Queen Present (Stable)"
-            
+            # Temperature co-factor: stressed colony (temp > 36) increases queenless signal
+            if temp > 36.5 and s_norm > 0.55:
+                base_confidence = min(base_confidence + 5.0, 97.0)
+
+            if s_norm >= boundary:
+                pred = "Queenless (Internal Roar)"
+            else:
+                pred = "Queen Present (Stable)"
+
             return jsonify({
                 "prediction": pred,
-                "confidence": 88.5,
+                "confidence": round(min(base_confidence, 97.0), 2),
                 "metrics": {
                     "energy": round(db_level, 2),
                     "zcr": 0,
                     "centroid": 0,
-                    "source": "Internal Sensor (Lively)"
+                    "source": "Internal Sensor (Live dB)"
                 }
             })
 
@@ -293,12 +346,23 @@ def predict_hive_intelligence():
         return jsonify({"error": str(e)}), 500
     
     
-@app.route('/predict-hive-live', methods=['POST'])
+@app.route('/api/predict-hive-live', methods=['POST'])
 def predict_hive_live():
     try:
-        # Get audio from the live stream (sent as a blob)
+        # BUG 4 FIX: Save to tempfile before loading — librosa cannot directly
+        # open a Flask FileStorage object on Windows (no file path available).
         file = request.files['file']
-        y, sr = librosa.load(file, sr=None, duration=3.0)
+        temp_fd, temp_path = tempfile.mkstemp(suffix=".webm")
+        os.close(temp_fd)
+        file.save(temp_path)
+
+        try:
+            y, sr = librosa.load(temp_path, sr=None, duration=3.0)
+        except Exception as e:
+            if os.path.exists(temp_path): os.remove(temp_path)
+            return jsonify({"error": f"Audio load failed: {e}"}), 400
+        finally:
+            if os.path.exists(temp_path): os.remove(temp_path)
         
         # Feature Extraction
         mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
@@ -345,5 +409,5 @@ def chat():
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    print(f"🐝 Beehive AI Engine is running at http://localhost:{port}")
+    print(f"[BEE] Beehive AI Engine is running at http://localhost:{port}")
     app.run(host="0.0.0.0", port=port, debug=False)

@@ -1,11 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { db } from '../services/firebase';
-import { ref, set } from 'firebase/database';
-import { API_BASE_URL } from "../config";
+import React, { useState, useEffect, useCallback } from 'react';
 
 const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
   const [predictionData, setPredictionData] = useState(null);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [file, setFile] = useState(null);
   const [manualData, setManualData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -17,17 +13,13 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
 
   // --- STYLING LOGIC ---
   const getConfidenceColor = (val) => {
-    if (val > 80) return '#38a169'; // Green
-    if (val > 50) return '#ecc94b'; // Yellow
-    return '#e53e3e'; // Red
+    if (val > 80) return '#38a169';
+    if (val > 50) return '#ecc94b';
+    return '#e53e3e';
   };
 
-  useEffect(() => {
-    if (liveInsideSound > 0) fetchLivelyPrediction();
-  }, [timestamp]);
-
-  const fetchLivelyPrediction = async () => {
-    setIsSyncing(true);
+  const fetchLivelyPrediction = useCallback(async () => {
+    if (!liveInsideSound || liveInsideSound <= 0) return;
     try {
       const res = await fetch("/api/predict-hive-intelligence", {
         method: "POST",
@@ -37,8 +29,11 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
       const result = await res.json();
       setPredictionData(result);
     } catch (err) { console.error("Sync Error:", err); }
-    finally { setIsSyncing(false); }
-  };
+  }, [liveInsideSound, temp]);
+
+  useEffect(() => {
+    fetchLivelyPrediction();
+  }, [timestamp, fetchLivelyPrediction]);
 
   const analyzeHive = async () => {
     if (!file) return alert("Please select a .wav file first!");

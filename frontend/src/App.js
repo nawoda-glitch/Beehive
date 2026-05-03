@@ -1,32 +1,23 @@
 import { useEffect, useState } from "react";
 import { db } from "./services/firebase";
 import { ref, onValue } from "firebase/database";
-import "./App.css"; // Ensure you have the CSS file created!
-
-
-
+import "./App.css";
 
 // Import your modular components
 import Cards from "./components/Cards";
 import Charts from "./components/Charts";
-import QueenSection from "./components/QueenSection";
-import ChatbotSection from "./components/ChatbotSection";
 import DecisionSection from "./components/DecisionSection";
 import SoundAnalysisSection from './components/SoundAnalysisSection';
 import ExternalSoundSection from './components/ExternalSoundSection';
 import HiveIntelligence from './components/HiveIntelligence';
-import HiveDecisionSupport from './components/HiveDecisionSupport';
 import HiveKnowledgeBot from './components/HiveKnowledgeBot';
 
 function App() {
   // --- States ---
   const [data, setData] = useState(null);
   const [history, setHistory] = useState([]);
-  const [aiData, setAiData] = useState(null);  
-  const [file, setFile] = useState(null);
-  const [queenResult, setQueenResult] = useState(null);
+  const [aiData, setAiData] = useState(null);
   const [soundPrediction, setSoundPrediction] = useState(null);
-  const [hiveAnalysis, setHiveAnalysis] = useState(null);
 
   // --- 1. Firebase Listener ---
   useEffect(() => {
@@ -90,36 +81,10 @@ function App() {
     .then(res => res.json())
     .then(res => setSoundPrediction(res))
     .catch(err => console.error("Sound Prediction Error:", err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.timestamp]);
 
-  // --- 3. Hive Intelligence Auto-Predict ---
-  useEffect(() => {
-    if (!data || !data.soundInside) return;
-
-    const autoPredictHiveStatus = async () => {
-      try {
-        const response = await fetch("/api/predict-hive-intelligence", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            soundInside: data.soundInside,
-            temperature: data.tempInside,
-            vibration: data.vibration
-          }),
-        });
-        const result = await response.json();
-        setHiveAnalysis({
-          ...result,
-          queen_status: result.metrics?.centroid > 300 ? "Queenless Roar" : "Queen Present",
-          lastSync: new Date().toLocaleTimeString()
-        });
-      } catch (err) {
-        console.error("Lively Prediction Error:", err);
-      }
-    };
-    const timeoutId = setTimeout(autoPredictHiveStatus, 1000);
-    return () => clearTimeout(timeoutId);
-  }, [data?.soundInside, data?.tempInside]);
+  // Note: HiveIntelligence component manages its own data fetching internally.
 
   // --- Render ---
   if (!data) {

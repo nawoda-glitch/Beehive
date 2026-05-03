@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { API_BASE_URL } from "../config";
 
 const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPrediction }) => {
   const [file, setFile] = useState(null);
@@ -13,18 +12,35 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
   const [isStreaming, setIsStreaming] = useState(false);
   const streamIntervalRef = useRef(null);
 
-  // We use the live stream prediction if active, otherwise fallback to the scalar prediction
-  const activeLivePrediction = isStreaming ? liveStreamPrediction : externalPrediction;
+  // BUG 5 FIX: The two endpoints return different shapes:
+  //   /predict-external-threat (live sensor): { detection, confidence, is_threat, source }
+  //   /predict-sound (mic file upload):       { label, confidence, status }
+  // We normalise both into a common shape here.
+  const normalizePrediction = (pred) => {
+    if (!pred) return null;
+    return {
+      text: pred.detection || pred.label || null,
+      confidence: pred.confidence || 0,
+      isHornet: (pred.detection === "Hornets" || pred.label === "Hornets" || pred.is_threat === true),
+      source: pred.source || (pred.label ? "ML Mic Analysis" : "Sensor Estimate")
+    };
+  };
 
-  // Live prediction logic
-  const isLiveHornet = activeLivePrediction?.detection === "Hornets" || activeLivePrediction?.label === "Hornets";
-  const liveDetectionText = activeLivePrediction?.detection || activeLivePrediction?.label || (isStreaming ? "Listening..." : "Scanning...");
-  const liveConfidenceVal = activeLivePrediction?.confidence || 0;
+  // We use the live stream prediction if active, otherwise fall back to the scalar sensor prediction
+  const activeLiveRaw = isStreaming ? liveStreamPrediction : externalPrediction;
+  const activeLive = normalizePrediction(activeLiveRaw);
+  const manualNorm = normalizePrediction(manualPrediction);
 
-  // Manual prediction logic
-  const isManualHornet = manualPrediction?.detection === "Hornets" || manualPrediction?.label === "Hornets";
-  const manualDetectionText = manualPrediction?.detection || manualPrediction?.label || "Awaiting File...";
-  const manualConfidenceVal = manualPrediction?.confidence || 0;
+  // Convenience aliases
+  const isLiveHornet = activeLive?.isHornet || false;
+  const liveDetectionText = activeLive?.text || (isStreaming ? "Listening..." : "Scanning...");
+  const liveConfidenceVal = activeLive?.confidence || 0;
+  const liveSource = activeLive?.source || "";
+
+  const isManualHornet = manualNorm?.isHornet || false;
+  const manualDetectionText = manualNorm?.text || "Awaiting File...";
+  const manualConfidenceVal = manualNorm?.confidence || 0;
+  const manualSource = manualNorm?.source || "";
 
   const analyzeExternalSound = async () => {
     if (!file) return alert("Please select a .wav file first!");
@@ -119,7 +135,7 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
   }, []);
 
   // Helper to render prediction boxes
-  const renderPredictionBox = (title, text, confidence, isHornet, isActive) => (
+  const renderPredictionBox = (title, text, confidence, isHornet, isActive, source) => (
     <div style={{
       ...styles.predictionBox, 
       backgroundColor: isActive ? (isHornet ? 'rgba(229, 62, 62, 0.15)' : 'rgba(56, 161, 105, 0.1)') : 'rgba(255,255,255,0.02)',
@@ -150,6 +166,11 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
            fontWeight: 'bold'
         }}>
            Confidence: {confidence}%
+        </span>
+      )}
+      {isActive && source && (
+        <span style={{ color: '#888', fontSize: '0.65rem', marginTop: '6px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+          {source}
         </span>
       )}
       {title === "Live Classification" && liveError && (
@@ -192,10 +213,10 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
         </div>
 
         {/* AI Prediction Display - LIVE */}
-        {renderPredictionBox("Live Classification", liveDetectionText, liveConfidenceVal, isLiveHornet, true)}
+        {renderPredictionBox("Live Classification", liveDetectionText, liveConfidenceVal, isLiveHornet, true, liveSource)}
 
         {/* AI Prediction Display - MANUAL */}
-        {renderPredictionBox("Manual Classification", manualDetectionText, manualConfidenceVal, isManualHornet, !!manualPrediction)}
+        {renderPredictionBox("Manual Classification", manualDetectionText, manualConfidenceVal, isManualHornet, !!manualPrediction, manualSource)}
       </div>
 
       {/* Manual File Upload Section */}
