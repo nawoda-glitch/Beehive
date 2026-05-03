@@ -138,6 +138,8 @@ def predict_advanced():
         print(f"DEBUG ERROR: {e}")
         return jsonify({"error": str(e)}), 400
     
+import tempfile
+
 @app.route('/predict-sound', methods=['POST'])
 def predict_sound():
     if 'file' not in request.files:
@@ -145,10 +147,24 @@ def predict_sound():
     
     file = request.files['file']
     
-    # 1. Feature Extraction (MFCC) matching your app_h.py logic
-    y, sr = librosa.load(file, sr=16000)
-    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
-    mfccs_processed = np.mean(mfccs.T, axis=0).reshape(1, -1)
+    # Save the file to a temporary location on disk with a unique name
+    temp_fd, temp_path = tempfile.mkstemp(suffix=".webm")
+    os.close(temp_fd) # Close file descriptor as librosa will open it
+    file.save(temp_path)
+    
+    try:
+        # 1. Feature Extraction (MFCC) 
+        y, sr = librosa.load(temp_path, sr=16000)
+        mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
+        mfccs_processed = np.mean(mfccs.T, axis=0).reshape(1, -1)
+    except Exception as e:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        return jsonify({"error": f"Audio processing failed: {e}"}), 400
+    finally:
+        # Clean up temp file
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
     
     # 2. Prediction
     prediction = sound_model.predict(mfccs_processed)[0]
@@ -168,23 +184,28 @@ def predict_sound():
 def predict_external_threat():
     try:
         data = request.json
-        # Explicitly grabbing the outside sound value
         outside_sound_val = float(data.get('soundOutside', 0)) 
         
-        # Pre-processing for the model
-        # Note: Since this is a scalar value from a sensor, we simulate the 
-        # feature vector expected by your insect_classifier_model_large.pkl
-        # based on your app_h.py logic.
-        features = np.array([[outside_sound_val] * 13]) # Adjusting to model's input shape
-        
-        prediction = sound_model.predict(features)[0]
-        probabilities = sound_model.predict_proba(features)
-        confidence = float(np.max(probabilities) * 100)
+        # --- Smart Heuristics for Live Sensor (dB only) ---
+        # Since scalar dB values cannot be converted to 13 MFCC arrays for the ML model,
+        # we rely on realistic dB thresholds to determine continuous baseline threat levels.
+        if outside_sound_val >= 85:
+            prediction = "Hornets"
+            confidence = min(99.9, 85.0 + (outside_sound_val - 85) * 1.5)
+            is_threat = True
+        elif outside_sound_val >= 50:
+            prediction = "Bees"
+            confidence = min(95.0, 75.0 + (outside_sound_val - 50))
+            is_threat = False
+        else:
+            prediction = "Noise"
+            confidence = max(70.0, 99.0 - outside_sound_val)
+            is_threat = False
 
         return jsonify({
             "detection": prediction,
             "confidence": round(confidence, 2),
-            "is_threat": True if prediction == "Hornets" else False
+            "is_threat": is_threat
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -193,20 +214,19 @@ def predict_external_threat():
 def predict_hive_intelligence():
     try:
         # --- Case A: Lively Sensor Data from Firebase (JSON) ---
-        # This handles the background pulse from the hardware sensors
         if request.is_json:
             data = request.get_json()
-            db_level = data.get('soundInside', 0)
+            db_level = float(data.get('soundInside', 0))
             
-            # Internal sound logic via thresholding
-            # 70-80dB inside is usually a high-stress or queenless roar
-            pred = "Queenless (Internal Roar)" if db_level > 75 else "Queen Present (Stable)"
+            # --- Smart Heuristics for Internal Live Sensor ---
+            # ML Model requires 26 MFCCs, so we use dB heuristics for continuous monitoring
+            pred = "Queenless (Internal Roar)" if db_level >= 85 else "Queen Present (Stable)"
             
             return jsonify({
                 "prediction": pred,
                 "confidence": 88.5,
                 "metrics": {
-                    "energy": round(float(db_level), 2),
+                    "energy": round(db_level, 2),
                     "zcr": 0,
                     "centroid": 0,
                     "source": "Internal Sensor (Lively)"
@@ -218,8 +238,21 @@ def predict_hive_intelligence():
         if 'file' in request.files:
             file = request.files['file']
             
-            # Load audio for 3 seconds
-            y, sr = librosa.load(file, sr=None, duration=3.0)
+            # Save the file to a temporary location on disk
+            temp_fd, temp_path = tempfile.mkstemp(suffix=".webm")
+            os.close(temp_fd)
+            file.save(temp_path)
+            
+            try:
+                # Load audio for 3 seconds
+                y, sr = librosa.load(temp_path, sr=None, duration=3.0)
+            except Exception as e:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+                return jsonify({"error": f"Internal audio processing failed: {e}"}), 400
+            finally:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
             
             # 1. Feature Extraction (MFCCs)
             mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)

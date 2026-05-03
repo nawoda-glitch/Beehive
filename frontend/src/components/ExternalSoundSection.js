@@ -6,18 +6,19 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
   const [manualPrediction, setManualPrediction] = useState(null);
   const [liveStreamPrediction, setLiveStreamPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [liveLoading, setLiveLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [liveError, setLiveError] = useState(null);
   
   const [isStreaming, setIsStreaming] = useState(false);
-  const mediaRecorderRef = useRef(null);
   const streamIntervalRef = useRef(null);
 
-  // We use the live stream prediction if active, otherwise fallback to the scalar prediction (or 'Scanning...')
+  // We use the live stream prediction if active, otherwise fallback to the scalar prediction
   const activeLivePrediction = isStreaming ? liveStreamPrediction : externalPrediction;
 
   // Live prediction logic
   const isLiveHornet = activeLivePrediction?.detection === "Hornets" || activeLivePrediction?.label === "Hornets";
-  const liveDetectionText = activeLivePrediction?.detection || activeLivePrediction?.label || "Scanning...";
+  const liveDetectionText = activeLivePrediction?.detection || activeLivePrediction?.label || (isStreaming ? "Listening..." : "Scanning...");
   const liveConfidenceVal = activeLivePrediction?.confidence || 0;
 
   // Manual prediction logic
@@ -38,9 +39,10 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
         body: formData,
       });
       const result = await res.json();
+      if (result.error) throw new Error(result.error);
       setManualPrediction(result);
     } catch (err) { 
-      setError("Analysis failed."); 
+      setError("Analysis failed: " + err.message); 
       console.error(err);
     } finally { 
       setLoading(false); 
@@ -52,29 +54,37 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       setIsStreaming(true);
+      setLiveError(null);
       
       const recordAndSend = () => {
+        if (!isStreaming) return;
         const mediaRecorder = new MediaRecorder(stream);
         const audioChunks = [];
         
         mediaRecorder.ondataavailable = (event) => {
-          audioChunks.push(event.data);
+          if (event.data.size > 0) audioChunks.push(event.data);
         };
         
         mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+          if (audioChunks.length === 0) return;
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
           const formData = new FormData();
-          formData.append('file', audioBlob, 'live_stream.wav');
+          formData.append('file', audioBlob, 'live_stream.webm');
           
+          setLiveLoading(true);
           try {
             const res = await fetch("/api/predict-sound", {
               method: "POST",
               body: formData,
             });
             const result = await res.json();
+            if (result.error) throw new Error(result.error);
             setLiveStreamPrediction(result);
           } catch (err) {
             console.error("Live Stream API Error:", err);
+            setLiveError("Stream interrupted");
+          } finally {
+            setLiveLoading(false);
           }
         };
         
@@ -84,32 +94,27 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
         }, 3000); // Record for 3 seconds
       };
       
-      // Start the first recording immediately, then loop every 3.5 seconds
       recordAndSend();
-      streamIntervalRef.current = setInterval(recordAndSend, 3500);
+      streamIntervalRef.current = setInterval(recordAndSend, 4000); // 3s record + 1s buffer
 
     } catch (err) {
       console.error("Microphone access denied:", err);
-      alert("Please allow microphone access to simulate live audio monitoring.");
+      setLiveError("Mic permission denied");
+      setIsStreaming(false);
     }
   };
 
   const stopLiveAudioStream = () => {
     setIsStreaming(false);
-    clearInterval(streamIntervalRef.current);
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-      mediaRecorderRef.current.stop();
-    }
-    // Stop all microphone tracks
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-      stream.getTracks().forEach(track => track.stop());
-    }).catch(e => console.error(e));
+    if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
+    setLiveLoading(false);
+    setLiveStreamPrediction(null);
   };
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      clearInterval(streamIntervalRef.current);
+      if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
     };
   }, []);
 
@@ -133,9 +138,9 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
         letterSpacing: '2px',
         textShadow: isActive ? (isHornet ? '0 0 15px rgba(255, 77, 77, 0.6)' : '0 0 15px rgba(56, 161, 105, 0.4)') : 'none'
       }}>
-        {text}
+        {title === "Live Classification" && liveLoading ? "⏳ Processing..." : text}
       </h2>
-      {isActive && (
+      {isActive && !liveLoading && (
         <span style={{
            background: 'rgba(0,0,0,0.3)',
            padding: '4px 10px',
@@ -146,6 +151,9 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
         }}>
            Confidence: {confidence}%
         </span>
+      )}
+      {title === "Live Classification" && liveError && (
+        <span style={{ color: '#ff4d4d', fontSize: '0.7rem', marginTop: '5px' }}>⚠️ {liveError}</span>
       )}
     </div>
   );
@@ -163,7 +171,7 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
             ...styles.btn, 
             marginLeft: 'auto',
             backgroundColor: isStreaming ? '#ffb300' : '#e53e3e',
-            animation: isStreaming ? 'pulse 2s infinite' : 'none'
+            boxShadow: isStreaming ? '0 0 15px rgba(255, 179, 0, 0.4)' : '0 4px 15px rgba(229, 62, 62, 0.2)'
           }}
         >
           {isStreaming ? '🛑 Stop Live Mic Stream' : '🎙️ Start Live Mic Stream'}
@@ -175,7 +183,12 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
         <div style={styles.statBox}>
           <span style={styles.label}>Outside Ambient Sound</span>
           <h2 style={styles.value}>{outsideSound || 0} dB</h2>
-          {isStreaming && <span style={{color: '#ffb300', fontSize: '0.7rem'}}>Streaming Live Audio...</span>}
+          {isStreaming && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ffb300', animation: 'pulse 1.5s infinite' }} />
+              <span style={{color: '#ffb300', fontSize: '0.7rem'}}>Live Stream Active</span>
+            </div>
+          )}
         </div>
 
         {/* AI Prediction Display - LIVE */}
