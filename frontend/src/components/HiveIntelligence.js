@@ -129,9 +129,9 @@ const styles = {
     borderRadius: '16px', 
     border: '1px solid rgba(255, 255, 255, 0.05)', 
     boxShadow: '0 8px 32px rgba(0,0,0,0.3)', 
-    maxWidth: '600px',
-    backdropFilter: 'blur(12px)',
-    marginTop: '20px'
+    maxWidth: '800px',
+    margin: '20px auto', // This centers the card
+    backdropFilter: 'blur(12px)'
   },
   title: { margin: '0 0 20px 0', fontSize: '1.2rem', color: '#fff', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', display: 'flex', alignItems: 'center', gap: '10px' },
   statusBanner: { padding: '30px', borderRadius: '12px', textAlign: 'center', marginBottom: '25px', border: '1px solid transition: all 0.3s ease' },
