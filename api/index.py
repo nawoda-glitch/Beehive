@@ -23,8 +23,16 @@ le_activity = joblib.load(os.path.join(MODEL_PATH, "le_activity.pkl"))
 le_swarm = joblib.load(os.path.join(MODEL_PATH, "le_swarm.pkl"))
 
 # LSTM and Scaler
-lstm_model = load_model(os.path.join(MODEL_PATH, "lstm_model.h5"), compile=False)
-scaler = joblib.load(os.path.join(MODEL_PATH, "scaler.pkl"))
+try:
+    lstm_model = load_model(os.path.join(MODEL_PATH, "lstm_model.h5"), compile=False)
+    scaler = joblib.load(os.path.join(MODEL_PATH, "scaler.pkl"))
+    lstm_available = True
+    print("✅ LSTM model loaded successfully")
+except Exception as e:
+    lstm_model = None
+    scaler = None
+    lstm_available = False
+    print(f"⚠️ LSTM model failed to load: {e}")
 
 # Load the sound model
 sound_model = joblib.load(os.path.join(MODEL_PATH, "insect_classifier_model_large.pkl"))
@@ -99,13 +107,14 @@ def predict_advanced():
 
         # 4. LSTM Forecast (Temp only)
         forecast_points = []
-        curr_input = np.array([[t]])
-        for _ in range(5):
-            scaled = scaler.transform(curr_input).reshape(1, 1, 1)
-            pred = lstm_model.predict(scaled, verbose=0)
-            val = float(scaler.inverse_transform(pred)[0][0])
-            forecast_points.append(round(val, 2))
-            curr_input = np.array([[val]])
+        if lstm_available:
+            curr_input = np.array([[t]])
+            for _ in range(5):
+                scaled = scaler.transform(curr_input).reshape(1, 1, 1)
+                pred = lstm_model.predict(scaled, verbose=0)
+                val = float(scaler.inverse_transform(pred)[0][0])
+                forecast_points.append(round(val, 2))
+                curr_input = np.array([[val]])
 
         return jsonify({
             "status": {
