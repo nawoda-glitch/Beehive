@@ -1,4 +1,4 @@
 export const getPrediction = async () => {
-  const res = await fetch("http://127.0.0.1:5000/predict");
+  const res = await fetch("https://beehiveapi.vercel.app/api/...");
   return await res.json();
 };
