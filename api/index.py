@@ -291,6 +291,10 @@ def predict_hive_live():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/chat", methods=["POST"]) # Note the /api/ prefix
+def chat():
+    return {"response": "Hello from the Bee Hive AI!"}
+
 if __name__ == '__main__':
     print("🐝 Beehive AI Engine is running at http://localhost:5000")
     app.run(port=5000, debug=True)
