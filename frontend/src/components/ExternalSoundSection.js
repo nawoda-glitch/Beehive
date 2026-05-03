@@ -7,11 +7,15 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // We use either the manual prediction (if a file was uploaded) or the live sound prediction
-  const currentPrediction = manualPrediction || soundPrediction;
-  const isHornet = currentPrediction?.detection === "Hornets" || currentPrediction?.label === "Hornets";
-  const detectionText = currentPrediction?.detection || currentPrediction?.label || "Scanning...";
-  const confidenceVal = currentPrediction?.confidence || 0;
+  // Live prediction logic
+  const isLiveHornet = soundPrediction?.detection === "Hornets" || soundPrediction?.label === "Hornets";
+  const liveDetectionText = soundPrediction?.detection || soundPrediction?.label || "Scanning...";
+  const liveConfidenceVal = soundPrediction?.confidence || 0;
+
+  // Manual prediction logic
+  const isManualHornet = manualPrediction?.detection === "Hornets" || manualPrediction?.label === "Hornets";
+  const manualDetectionText = manualPrediction?.detection || manualPrediction?.label || "Awaiting File...";
+  const manualConfidenceVal = manualPrediction?.confidence || 0;
 
   const analyzeExternalSound = async () => {
     if (!file) return alert("Please select a .wav file first!");
@@ -35,6 +39,43 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction }) => {
     }
   };
 
+  // Helper to render prediction boxes
+  const renderPredictionBox = (title, text, confidence, isHornet, isActive) => (
+    <div style={{
+      ...styles.predictionBox, 
+      backgroundColor: isActive ? (isHornet ? 'rgba(229, 62, 62, 0.15)' : 'rgba(56, 161, 105, 0.1)') : 'rgba(255,255,255,0.02)',
+      borderColor: isActive ? (isHornet ? '#ff4d4d' : '#38a169') : '#333',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}>
+      <span style={styles.label}>{title}</span>
+      <h2 style={{ 
+        color: isActive ? (isHornet ? '#ff4d4d' : '#38a169') : '#666', 
+        fontSize: '1.6rem',
+        margin: '10px 0',
+        textTransform: 'uppercase',
+        letterSpacing: '2px',
+        textShadow: isActive ? (isHornet ? '0 0 15px rgba(255, 77, 77, 0.6)' : '0 0 15px rgba(56, 161, 105, 0.4)') : 'none'
+      }}>
+        {text}
+      </h2>
+      {isActive && (
+        <span style={{
+           background: 'rgba(0,0,0,0.3)',
+           padding: '4px 10px',
+           borderRadius: '12px',
+           fontSize: '0.8rem',
+           color: '#fff',
+           fontWeight: 'bold'
+        }}>
+           Confidence: {confidence}%
+        </span>
+      )}
+    </div>
+  );
+
   return (
     <div style={styles.card} className="bee-card">
       <div style={styles.header}>
@@ -47,45 +88,13 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction }) => {
         <div style={styles.statBox}>
           <span style={styles.label}>Outside Ambient Sound</span>
           <h2 style={styles.value}>{outsideSound || 0} dB</h2>
-          {manualPrediction && (
-            <button onClick={() => setManualPrediction(null)} style={styles.clearBtn}>
-              Resume Live Monitor
-            </button>
-          )}
         </div>
 
-        {/* AI Prediction Display */}
-        <div style={{
-          ...styles.predictionBox, 
-          backgroundColor: isHornet ? 'rgba(229, 62, 62, 0.15)' : 'rgba(56, 161, 105, 0.1)',
-          borderColor: isHornet ? '#ff4d4d' : '#38a169',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-          <span style={styles.label}>{manualPrediction ? "Manual Classification" : "Live Classification"}</span>
-          <h2 style={{ 
-            color: isHornet ? '#ff4d4d' : '#38a169', 
-            fontSize: '2rem',
-            margin: '10px 0',
-            textTransform: 'uppercase',
-            letterSpacing: '2px',
-            textShadow: isHornet ? '0 0 15px rgba(255, 77, 77, 0.6)' : '0 0 15px rgba(56, 161, 105, 0.4)'
-          }}>
-            {detectionText}
-          </h2>
-          <span style={{
-             background: 'rgba(0,0,0,0.3)',
-             padding: '4px 10px',
-             borderRadius: '12px',
-             fontSize: '0.8rem',
-             color: '#fff',
-             fontWeight: 'bold'
-          }}>
-             Confidence: {confidenceVal}%
-          </span>
-        </div>
+        {/* AI Prediction Display - LIVE */}
+        {renderPredictionBox("Live Classification", liveDetectionText, liveConfidenceVal, isLiveHornet, true)}
+
+        {/* AI Prediction Display - MANUAL */}
+        {renderPredictionBox("Manual Classification", manualDetectionText, manualConfidenceVal, isManualHornet, !!manualPrediction)}
       </div>
 
       {/* Manual File Upload Section */}
@@ -96,11 +105,16 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction }) => {
           <button onClick={analyzeExternalSound} disabled={loading} style={styles.btn}>
             {loading ? "⚙️ Processing..." : "Analyze Audio"}
           </button>
+          {manualPrediction && (
+            <button onClick={() => setManualPrediction(null)} style={styles.clearBtn}>
+              Clear Result
+            </button>
+          )}
         </div>
         {error && <p style={{color: '#ff4d4d', fontSize: '0.8rem', marginTop: '5px'}}>{error}</p>}
       </div>
 
-      {isHornet && (
+      {(isLiveHornet || isManualHornet) && (
         <div style={styles.alarm} className="predator-alarm">
           ⚠️ ALERT: Hornets detected outside the hive!
         </div>
@@ -121,12 +135,15 @@ const styles = {
   header: { display: 'flex', alignItems: 'center', marginBottom: '20px' },
   icon: { marginRight: '10px', fontSize: '1.4rem' },
   title: { fontSize: '0.9rem', fontWeight: '700', color: '#fff', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 },
-  mainGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' },
+  mainGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' },
   statBox: { 
     padding: '15px', 
     background: 'rgba(255, 255, 255, 0.03)', 
     borderRadius: '12px',
-    border: '1px solid rgba(255, 255, 255, 0.05)'
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center'
   },
   label: { fontSize: '0.7rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px' },
   value: { margin: '8px 0', fontSize: '1.8rem', color: '#fff', fontWeight: 'bold' },
@@ -160,13 +177,12 @@ const styles = {
     boxShadow: '0 4px 15px rgba(229, 62, 62, 0.2)'
   },
   clearBtn: {
-    marginTop: '10px',
     background: 'transparent',
     color: '#aaa',
     border: '1px solid #555',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    fontSize: '0.7rem',
+    padding: '8px 16px',
+    borderRadius: '8px',
+    fontSize: '0.75rem',
     cursor: 'pointer',
   }
 };
