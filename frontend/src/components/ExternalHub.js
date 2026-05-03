@@ -18,15 +18,26 @@ const ExternalHub = () => {
         </a>
       </div>
 
-      <div style={styles.iframeWrapper}>
-        <iframe 
-          src="https://bee-monitor.onrender.com/" 
-          title="BEE Monitor External"
-          style={styles.iframe}
-          frameBorder="0"
-        />
+      <div style={styles.portalWrapper}>
+        <div style={{...styles.imageBackdrop, backgroundImage: 'url("/external_hub.png")'}} />
+        
+        <div style={styles.portalContent}>
+          <span style={styles.statusText}>● NODE: RENDER_SERVER_BEE_01 (SECURE)</span>
+          <h2 style={styles.portalTitle}>Legacy Monitoring Hub</h2>
+          <p style={styles.portalDesc}>The external Render dashboard has security policies that prevent direct embedding. Click below to access the full control panel.</p>
+          
+          <a 
+            href="https://bee-monitor.onrender.com/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={styles.portalBtn}
+          >
+            Launch External Hub ↗
+          </a>
+        </div>
+
         <div style={styles.overlay}>
-          <p>Connecting to External Node...</p>
+          <p>System Integrated: AES-256 Connection</p>
         </div>
       </div>
       
@@ -76,32 +87,83 @@ const styles = {
     opacity: 0.8,
     transition: '0.3s'
   },
-  iframeWrapper: {
+  portalWrapper: {
     position: 'relative',
     width: '100%',
-    height: '600px',
-    borderRadius: '12px',
+    height: '400px',
+    borderRadius: '16px',
     overflow: 'hidden',
-    background: '#111',
-    border: '1px solid rgba(255,255,255,0.05)'
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#000'
   },
-  iframe: {
-    width: '100%',
-    height: '100%',
-    filter: 'contrast(1.1) brightness(0.9)',
-  },
-  overlay: {
+  imageBackdrop: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
+    bottom: 0,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    opacity: 0.4,
+    filter: 'blur(4px) grayscale(0.5)'
+  },
+  portalContent: {
+    position: 'relative',
+    zIndex: 2,
+    textAlign: 'center',
+    padding: '40px',
+    maxWidth: '400px'
+  },
+  statusText: {
+    fontSize: '0.65rem',
+    color: '#38a169',
+    fontWeight: '800',
+    letterSpacing: '1px',
+    display: 'block',
+    marginBottom: '10px'
+  },
+  portalTitle: {
+    fontSize: '1.8rem',
+    color: '#fff',
+    margin: '0 0 15px 0',
+    fontWeight: '800',
+    textShadow: '0 4px 10px rgba(0,0,0,0.5)'
+  },
+  portalDesc: {
+    fontSize: '0.85rem',
+    color: '#aaa',
+    lineHeight: '1.5',
+    marginBottom: '25px'
+  },
+  portalBtn: {
+    display: 'inline-block',
+    background: '#ffb300',
+    color: '#000',
+    padding: '12px 30px',
+    borderRadius: '30px',
+    textDecoration: 'none',
+    fontWeight: '800',
+    fontSize: '0.8rem',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    boxShadow: '0 10px 30px rgba(255, 179, 0, 0.3)',
+    transition: '0.3s transform'
+  },
+  overlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     height: '40px',
-    background: 'linear-gradient(to bottom, rgba(0,0,0,0.8), transparent)',
+    background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
     display: 'flex',
     alignItems: 'center',
     paddingLeft: '20px',
     color: '#666',
-    fontSize: '0.7rem',
+    fontSize: '0.6rem',
     pointerEvents: 'none'
   },
   footer: {
