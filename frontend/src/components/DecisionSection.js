@@ -1,4 +1,5 @@
 import React from 'react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const DecisionSection = ({ aiData }) => {
   // 1. Loading State - Updated for Dark Theme
@@ -70,27 +71,50 @@ const DecisionSection = ({ aiData }) => {
         </ul>
       </div>
 
-      {/* 5. LSTM Forecast Bar */}
+      {/* 5. LSTM Forecast Graph (5 Days) */}
       <div style={styles.forecastSection}>
-        <h4 style={styles.cardLabel}>📈 LSTM Temperature Projection (Next 5 Hours)</h4>
+        <h4 style={styles.cardLabel}>📈 LSTM Temperature Projection (Next 5 Days)</h4>
         
         {!aiData.forecast_data || aiData.forecast_data.length === 0 ? (
-           <div style={{ textAlign: 'center', padding: '20px', color: '#666', fontSize: '0.8rem' }}>
+           <div style={{ textAlign: 'center', padding: '40px', color: '#666', fontSize: '0.8rem' }}>
              LSTM Forecast Model is currently analyzing historical data...
            </div>
         ) : (
-          <div style={styles.forecastFlex}>
-            {aiData.forecast_data.map((temp, i) => (
-              <div key={i} style={styles.forecastBox}>
-                <div style={styles.hourLabel}>+{i + 1}h</div>
-                <div style={styles.tempValue}>{temp}°C</div>
-                <div style={{
-                  ...styles.trendLine, 
-                  height: `${(temp / 45) * 100}%`,
-                  backgroundColor: temp > 35 ? '#ff4d4d' : '#ffb300'
-                }}></div>
-              </div>
-            ))}
+          <div style={{ width: '100%', height: '180px', marginTop: '15px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={aiData.forecast_data}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis 
+                  dataKey="day" 
+                  stroke="#666" 
+                  fontSize={11} 
+                  tickMargin={10} 
+                  axisLine={false} 
+                  tickLine={false} 
+                />
+                <YAxis 
+                  stroke="#666" 
+                  fontSize={11} 
+                  domain={['auto', 'auto']} 
+                  axisLine={false} 
+                  tickLine={false}
+                  tickFormatter={(val) => `${val}°C`}
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#222', borderColor: '#444', borderRadius: '8px' }}
+                  itemStyle={{ color: '#ffb300' }}
+                  formatter={(value) => [`${value}°C`, 'Temperature']}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="temp" 
+                  stroke="#ffb300" 
+                  strokeWidth={3} 
+                  dot={{ r: 4, fill: '#ffb300', stroke: '#222', strokeWidth: 2 }} 
+                  activeDot={{ r: 6, fill: '#ff4d4d' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         )}
       </div>

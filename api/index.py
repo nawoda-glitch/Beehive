@@ -105,15 +105,22 @@ def predict_advanced():
         if risk_score > 60: reasons.append("Multiple stress conditions detected")
         if not reasons: reasons.append("All conditions optimal")
 
-        # 4. LSTM Forecast (Temp only)
+        # 4. LSTM Forecast (Temp only) - 5 Days Prediction
         forecast_points = []
         if lstm_available:
             curr_input = np.array([[t]])
-            for _ in range(5):
+            for i in range(1, 121):  # 120 hours = 5 days
                 scaled = scaler.transform(curr_input).reshape(1, 1, 1)
                 pred = lstm_model.predict(scaled, verbose=0)
                 val = float(scaler.inverse_transform(pred)[0][0])
-                forecast_points.append(round(val, 2))
+                
+                # Save data point every 24 hours (1 day)
+                if i % 24 == 0:
+                    forecast_points.append({
+                        "day": f"Day {i // 24}",
+                        "temp": round(val, 2)
+                    })
+                
                 curr_input = np.array([[val]])
 
         return jsonify({
