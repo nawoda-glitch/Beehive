@@ -337,16 +337,6 @@ def predict_hive_live():
         finally:
             if os.path.exists(temp_path):
                 os.remove(temp_path)
-            is_queen_present = "N/A (Not a Bee Sound)"
-
-        return jsonify({
-            "prediction": base_prediction.replace('_', ' ').title(),
-            "confidence": round(confidence, 2),
-            "queen_status": is_queen_present,
-            "metrics": {
-                "centroid": round(float(centroid), 2)
-            }
-        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
