@@ -1,4 +1,5 @@
 import React from 'react';
+import { API_BASE_URL } from "../config";
 
 const ExternalSoundSection = ({ outsideSound, soundPrediction }) => {
   const isHornet = soundPrediction?.detection === "Hornets";

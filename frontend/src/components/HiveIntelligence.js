@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../services/firebase';
 import { ref, set } from 'firebase/database';
+import { API_BASE_URL } from "../config";
 
 const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
   const [predictionData, setPredictionData] = useState(null);
@@ -28,7 +29,7 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
   const fetchLivelyPrediction = async () => {
     setIsSyncing(true);
     try {
-      const res = await fetch("https://beehiveapi.vercel.app/api/...", {
+      const res = await fetch("https://beehiveapi.vercel.app/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sound_level: liveInsideSound, temperature: temp }),
@@ -47,7 +48,7 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
     formData.append('file', file);
 
     try {
-      const res = await fetch("https://beehiveapi.vercel.app/api/...", {
+      const res = await fetch("https://beehiveapi.vercel.app/api", {
         method: "POST",
         body: formData,
       });

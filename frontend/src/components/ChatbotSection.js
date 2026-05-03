@@ -34,7 +34,7 @@ function ChatbotSection() {
     setInput("");
 
     try {
-      // BEFORE: fetch("https://beehiveapi.vercel.app/api/...", ...)
+      // BEFORE: fetch("https://beehiveapi.vercel.app/api", ...)
 // AFTER:
 const response = await fetch(`${API_BASE_URL}/chat`, {
     method: "POST",
