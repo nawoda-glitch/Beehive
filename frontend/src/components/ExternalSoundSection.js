@@ -1,8 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { API_BASE_URL } from "../config";
 
 const ExternalSoundSection = ({ outsideSound, soundPrediction }) => {
-  const isHornet = soundPrediction?.detection === "Hornets";
+  const [file, setFile] = useState(null);
+  const [manualPrediction, setManualPrediction] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // We use either the manual prediction (if a file was uploaded) or the live sound prediction
+  const currentPrediction = manualPrediction || soundPrediction;
+  const isHornet = currentPrediction?.detection === "Hornets" || currentPrediction?.label === "Hornets";
+  const detectionText = currentPrediction?.detection || currentPrediction?.label || "Scanning...";
+  const confidenceVal = currentPrediction?.confidence || 0;
+
+  const analyzeExternalSound = async () => {
+    if (!file) return alert("Please select a .wav file first!");
+    setLoading(true);
+    setError(null);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch("/api/predict-sound", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await res.json();
+      setManualPrediction(result);
+    } catch (err) { 
+      setError("Analysis failed."); 
+      console.error(err);
+    } finally { 
+      setLoading(false); 
+    }
+  };
 
   return (
     <div style={styles.card} className="bee-card">
@@ -16,6 +47,11 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction }) => {
         <div style={styles.statBox}>
           <span style={styles.label}>Outside Ambient Sound</span>
           <h2 style={styles.value}>{outsideSound || 0} dB</h2>
+          {manualPrediction && (
+            <button onClick={() => setManualPrediction(null)} style={styles.clearBtn}>
+              Resume Live Monitor
+            </button>
+          )}
         </div>
 
         {/* AI Prediction Display */}
@@ -24,16 +60,28 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction }) => {
           backgroundColor: isHornet ? 'rgba(229, 62, 62, 0.1)' : 'rgba(255, 179, 0, 0.05)',
           borderColor: isHornet ? '#ff4d4d' : '#ffb300'
         }}>
-          <span style={styles.label}>AI Classification</span>
+          <span style={styles.label}>{manualPrediction ? "Manual Classification" : "Live Classification"}</span>
           <h3 style={{ 
             color: isHornet ? '#ff4d4d' : '#ffb300', 
             margin: '5px 0',
             textShadow: isHornet ? '0 0 10px rgba(255, 77, 77, 0.5)' : 'none'
           }}>
-            {soundPrediction?.detection || "Scanning..."}
+            {detectionText}
           </h3>
-          <p style={styles.confidence}>Confidence: {soundPrediction?.confidence || 0}%</p>
+          <p style={styles.confidence}>Confidence: {confidenceVal}%</p>
         </div>
+      </div>
+
+      {/* Manual File Upload Section */}
+      <div style={styles.uploadSection}>
+        <h4 style={styles.subHeader}>🔍 Manual Threat Analysis</h4>
+        <div style={styles.actionRow}>
+          <input type="file" accept=".wav" onChange={(e) => setFile(e.target.files[0])} style={styles.fileInput} />
+          <button onClick={analyzeExternalSound} disabled={loading} style={styles.btn}>
+            {loading ? "⚙️ Processing..." : "Analyze Audio"}
+          </button>
+        </div>
+        {error && <p style={{color: '#ff4d4d', fontSize: '0.8rem', marginTop: '5px'}}>{error}</p>}
       </div>
 
       {isHornet && (
@@ -77,6 +125,33 @@ const styles = {
     textAlign: 'center', 
     fontWeight: 'bold',
     boxShadow: '0 0 20px rgba(229, 62, 62, 0.4)'
+  },
+  uploadSection: { marginTop: '20px' },
+  subHeader: { fontSize: '0.8rem', color: '#aaa', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' },
+  actionRow: { display: 'flex', gap: '15px', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' },
+  fileInput: { fontSize: '0.8rem', color: '#ccc' },
+  btn: { 
+    background: '#e53e3e', 
+    color: '#fff', 
+    border: 'none', 
+    padding: '8px 16px', 
+    borderRadius: '8px', 
+    cursor: 'pointer', 
+    fontWeight: '800', 
+    textTransform: 'uppercase',
+    fontSize: '0.75rem',
+    transition: '0.2s',
+    boxShadow: '0 4px 15px rgba(229, 62, 62, 0.2)'
+  },
+  clearBtn: {
+    marginTop: '10px',
+    background: 'transparent',
+    color: '#aaa',
+    border: '1px solid #555',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    fontSize: '0.7rem',
+    cursor: 'pointer',
   }
 };
 
