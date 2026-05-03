@@ -190,7 +190,10 @@ def predict_sound():
     probabilities = sound_model.predict_proba(mfccs_processed)
     confidence = float(np.max(probabilities) * 100)
     
-    # 3. Professional Response Logic
+    # 3. Confidence Gate Logic for Hornets
+    if prediction == "Hornets" and confidence < 85.0:
+        prediction = "noise"  # Downgrade to noise if not highly confident
+    
     result = {
         "label": prediction,
         "confidence": round(confidence, 2),
@@ -202,41 +205,32 @@ def predict_sound():
 @app.route('/api/predict-external-threat', methods=['POST'])
 def predict_external_threat():
     """
-    BUG 2 FIX: Live sensor only provides a scalar dB value — MFCC extraction
-    is impossible. We use biologically-calibrated sigmoid confidence curves
-    instead of arbitrary hard thresholds. This gives smooth, realistic scores.
-    Hornet colony: typically 70-90+ dB outside hive.
-    Bees foraging: typically 45-70 dB.
-    Ambient/Noise: < 45 dB.
+    FIX: The live sensor only provides a dB scalar. We cannot classify insects 
+    using only dB. We now map the dB to a general environmental state to prevent
+    fake Hornet alarms during panel presentations.
     """
     try:
         data = request.json
         outside_sound_val = float(data.get('soundOutside', 0))
         s_norm = db_to_normalized(outside_sound_val)
 
-        # Sigmoid-based probability curves for realistic sensor estimation
-        import math
-        # Hornet probability: rises sharply above 70 dB (normalized ~0.57)
-        hornet_prob = 1.0 / (1.0 + math.exp(-12.0 * (s_norm - 0.60)))
-        # Bee probability: peaks in mid-range (40-70 dB)
-        bee_prob = math.exp(-0.5 * ((s_norm - 0.22) / 0.18) ** 2)
-
-        if hornet_prob > 0.50:
-            prediction = "Hornets"
-            confidence = round(hornet_prob * 100, 2)
-            is_threat = True
-        elif s_norm > 0.15 and bee_prob > 0.25:
-            prediction = "Bees"
-            confidence = round(min(bee_prob * 100, 92.0), 2)
+        # Environmental Noise Estimation
+        if outside_sound_val > 75:
+            prediction = "High Noise Level"
+            is_threat = False # No longer trigger hornet alarm
+            confidence = min(80 + (outside_sound_val - 75), 99.0)
+        elif outside_sound_val > 45:
+            prediction = "Normal Activity"
             is_threat = False
+            confidence = 85.0
         else:
-            prediction = "Ambient Noise"
-            confidence = round(min((1.0 - s_norm) * 95, 95.0), 2)
+            prediction = "Quiet Ambient"
             is_threat = False
+            confidence = min((1.0 - s_norm) * 95, 95.0)
 
         return jsonify({
             "detection": prediction,
-            "confidence": confidence,
+            "confidence": round(confidence, 2),
             "is_threat": is_threat,
             "db_level": outside_sound_val,
             "normalized": s_norm,
