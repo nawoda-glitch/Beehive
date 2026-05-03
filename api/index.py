@@ -319,15 +319,19 @@ def predict_hive_live():
             probs = mega_model.predict_proba(scaled_feat)
             confidence = float(np.max(probs) * 100)
 
-            # 2. Queen Bee Logic (Based on Frequency Centroid)
-            is_queen_present = "Present"
+            # 2. Queen Bee Logic (Advanced Acoustic Signature)
+            is_queen_present = "Analyzing..."
             if base_prediction.lower() == "bee":
-                if centroid > 300: 
-                    is_queen_present = "Queenless (Agitated)"
+                # Healthy hives usually stay in the 200-450Hz centroid range.
+                # Queenless hives produce a higher-pitched 'roaring' frequency.
+                if centroid > 450: 
+                    is_queen_present = "Queenless (Acoustic Roar)"
+                elif centroid < 200:
+                    is_queen_present = "Hive Dormant / Low Activity"
                 else:
                     is_queen_present = "Queen Present (Stable)"
             else:
-                is_queen_present = f"Other: {base_prediction}"
+                is_queen_present = f"Detected: {base_prediction}"
 
             return jsonify({
                 "prediction": is_queen_present,

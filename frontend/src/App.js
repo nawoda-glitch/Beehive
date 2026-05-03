@@ -111,7 +111,7 @@ function App() {
         const result = await response.json();
         setHiveAnalysis({
           ...result,
-          queen_status: result.metrics?.centroid > 300 ? "Queenless Roar" : "Queen Present",
+          queen_status: result.prediction,
           lastSync: new Date().toLocaleTimeString()
         });
       } catch (err) {
