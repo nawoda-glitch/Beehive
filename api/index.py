@@ -8,7 +8,7 @@ from tensorflow.keras.models import load_model
 import librosa
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # ---------------------------------------------------------
 # 1. LOAD MODELS AND ENCODERS
