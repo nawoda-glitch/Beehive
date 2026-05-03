@@ -1,11 +1,15 @@
 import React from 'react';
 
-const Card = ({ title, value, color }) => (
-  <div style={{
-    background: color, color: "white", padding: "20px", borderRadius: "12px",
-    minWidth: "160px", flex: "1", textAlign: "center", boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
-  }}>
-    <h4 style={{ margin: 0, opacity: 0.9, fontSize: "0.9rem" }}>{title}</h4>
+const Card = ({ title, value, isGold }) => (
+  <div 
+    className={`bee-card ${isGold ? 'gold-glow' : ''}`} // Add this line
+    style={{
+      /* Keep your existing inline styles, CSS will override the background */
+      padding: "20px", borderRadius: "12px",
+      minWidth: "160px", flex: "1", textAlign: "center"
+    }}
+  >
+    <h4 style={{ margin: 0, opacity: 0.7, fontSize: "0.8rem", textTransform: 'uppercase' }}>{title}</h4>
     <h2 style={{ margin: "10px 0 0 0" }}>{value}</h2>
   </div>
 );
@@ -14,21 +18,22 @@ const Cards = ({ data }) => {
   return (
     <div style={{ 
       display: "grid", 
-      gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", 
-      gap: "15px", 
-      marginBottom: "30px" 
+      gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", 
+      gap: "20px",
+      maxWidth: "1200px",
+      margin: "0 auto"
     }}>
       {/* Temperature Group */}
-      <Card title="Temp Inside" value={`${data.tempInside}°C`} color="#ff6b6b" />
-      <Card title="Temp Outside" value={`${data.tempOutside}°C`} color="#ffa94d" />
+      <Card title="Temp Inside" value={`${data.tempInside}°C`} icon="🌡️" isGold={true} />
+      <Card title="Temp Outside" value={`${data.tempOutside}°C`} icon="☁️" isGold={false} />
 
       {/* Humidity Group */}
-      <Card title="Hum Inside" value={`${data.humInside}%`} color="#4dabf7" />
-      <Card title="Hum Outside" value={`${data.humOutside}%`} color="#74c0fc" />
+      <Card title="Hum Inside" value={`${data.humInside}%`} icon="💧" isGold={true} />
+      <Card title="Hum Outside" value={`${data.humOutside}%`} icon="🌊" isGold={false} />
 
       {/* Sound Group */}
-      <Card title="Sound Inside" value={`${data.soundInside} dB`} color="#845ef7" />
-      <Card title="Sound Outside" value={`${data.soundOutside} dB`} color="#9775fa" />
+      <Card title="Sound Inside" value={`${data.soundInside} dB`} icon="🐝" isGold={true} />
+      <Card title="Sound Outside" value={`${data.soundOutside} dB`} isGold={false} />
     </div>
   );
 };

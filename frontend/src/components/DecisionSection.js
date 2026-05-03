@@ -1,61 +1,60 @@
 import React from 'react';
 
 const DecisionSection = ({ aiData }) => {
-  // 1. Loading State
+  // 1. Loading State - Updated for Dark Theme
   if (!aiData || !aiData.status) {
     return (
-      <div style={styles.loadingContainer}>
+      <div style={styles.loadingContainer} className="bee-card">
         <div className="spinner"></div>
-        <h3 style={{marginTop: '15px', color: '#636e72'}}>🧠 AI Engine Initializing...</h3>
-        <p style={{fontSize: '0.8rem', color: '#b2bec3'}}>Crunching sensor data for risks and forecasts.</p>
+        <h3 style={{marginTop: '15px', color: '#ffb300'}}>🧠 AI Engine Initializing...</h3>
+        <p style={{fontSize: '0.8rem', color: '#666'}}>Crunching sensor data for risks and forecasts.</p>
       </div>
     );
   }
 
-  // 2. Main Component Return
   return (
-    <div style={styles.container}>
-      {/* KPI Header Row - Professional Metrics */}
+    <div style={styles.container} className="bee-card">
+      {/* KPI Header Row */}
       <div style={styles.kpiRow}>
         <div style={styles.kpiCard}>
           <span style={styles.kpiLabel}>Hive Health</span>
-          <h2 style={{...styles.kpiValue, color: aiData.status.health === 'Healthy' ? '#00b894' : '#d63031'}}>
+          <h2 style={{...styles.kpiValue, color: aiData.status.health === 'Healthy' ? '#ffb300' : '#ff4d4d'}}>
             {aiData.status.health}
           </h2>
         </div>
         <div style={styles.kpiCard}>
           <span style={styles.kpiLabel}>Activity</span>
-          <h2 style={{...styles.kpiValue, color: '#2d3436'}}>{aiData.status.activity}</h2>
+          <h2 style={{...styles.kpiValue, color: '#fff'}}>{aiData.status.activity}</h2>
         </div>
         <div style={styles.kpiCard}>
           <span style={styles.kpiLabel}>Swarming Risk</span>
-          <h2 style={{...styles.kpiValue, color: aiData.status.swarm === 'Low' ? '#00b894' : '#d63031'}}>
+          <h2 style={{...styles.kpiValue, color: aiData.status.swarm === 'Low' ? '#ffb300' : '#ff4d4d'}}>
             {aiData.status.swarm}
           </h2>
         </div>
         <div style={styles.kpiCard}>
           <span style={styles.kpiLabel}>Risk %</span>
-          <h2 style={{...styles.kpiValue, color: '#2d3436'}}>{aiData.risk_score}%</h2>
+          <h2 style={{...styles.kpiValue, color: '#fff'}}>{aiData.risk_score}%</h2>
         </div>
       </div>
 
-      {/* 3. Risk Level Section (Progress Bar) */}
+      {/* 3. Risk Level Section */}
       <div style={styles.riskContainer}>
-        <h3 style={styles.subHeader}>🔥 Risk Level</h3>
+        <h3 style={styles.subHeader}>🔥 Risk Level Analysis</h3>
         <div style={styles.progressBarBg}>
           <div style={{
             ...styles.progressBarFill,
             width: `${aiData.risk_score}%`,
-            backgroundColor: aiData.risk_score > 60 ? '#d63031' : aiData.risk_score > 30 ? '#fdcb6e' : '#00b894'
+            backgroundColor: aiData.risk_score > 60 ? '#ff4d4d' : aiData.risk_score > 30 ? '#ffb300' : '#ffb300',
+            boxShadow: aiData.risk_score > 60 ? '0 0 15px #ff4d4d' : '0 0 15px #ffb300'
           }} />
         </div>
 
-        {/* Status Alert Box */}
         <div style={{
           ...styles.statusAlert,
-          backgroundColor: aiData.risk_score > 60 ? 'rgba(214, 48, 49, 0.1)' : 'rgba(0, 184, 148, 0.1)',
-          color: aiData.risk_score > 60 ? '#d63031' : '#00b894',
-          border: `1px solid ${aiData.risk_score > 60 ? '#d63031' : '#00b894'}`
+          backgroundColor: aiData.risk_score > 60 ? 'rgba(255, 77, 77, 0.1)' : 'rgba(255, 179, 0, 0.1)',
+          color: aiData.risk_score > 60 ? '#ff4d4d' : '#ffb300',
+          borderColor: aiData.risk_score > 60 ? '#ff4d4d' : '#ffb300'
         }}>
           {aiData.risk_score < 25 ? "✔ Hive is stable" : aiData.risk_score < 60 ? "⚠ Moderate stress detected" : "✖ CRITICAL: Action Required"}
         </div>
@@ -63,7 +62,7 @@ const DecisionSection = ({ aiData }) => {
 
       {/* 4. Explanation Section */}
       <div style={styles.explanationSection}>
-        <h3 style={styles.subHeader}>🧠 Explanation</h3>
+        <h3 style={styles.subHeader}>🧠 Intelligence Insights</h3>
         <ul style={styles.reasonList}>
           {aiData.reasons.map((r, i) => (
             <li key={i} style={styles.reasonItem}>• {r}</li>
@@ -79,7 +78,11 @@ const DecisionSection = ({ aiData }) => {
             <div key={i} style={styles.forecastBox}>
               <div style={styles.hourLabel}>+{i + 1}h</div>
               <div style={styles.tempValue}>{temp}°C</div>
-              <div style={{...styles.trendLine, height: `${(temp / 45) * 100}%`}}></div>
+              <div style={{
+                ...styles.trendLine, 
+                height: `${(temp / 45) * 100}%`,
+                backgroundColor: temp > 35 ? '#ff4d4d' : '#ffb300'
+              }}></div>
             </div>
           ))}
         </div>
@@ -88,42 +91,42 @@ const DecisionSection = ({ aiData }) => {
   );
 };
 
-// 6. Professional Styles Object
 const styles = {
   container: {
-    background: '#ffffff',
-    borderRadius: '15px',
+    background: 'rgba(30, 30, 30, 0.8)',
+    borderRadius: '16px',
     padding: '25px',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-    fontFamily: 'inherit'
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(12px)',
+    marginTop: '20px'
   },
   kpiRow: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '15px',
     marginBottom: '30px',
-    borderBottom: '1px solid #eee',
+    borderBottom: '1px solid rgba(255,255,255,0.05)',
     paddingBottom: '20px'
   },
   kpiCard: { textAlign: 'left' },
-  kpiLabel: { fontSize: '0.8rem', color: '#636e72', fontWeight: '500' },
-  kpiValue: { fontSize: '1.5rem', fontWeight: '700', margin: '5px 0' },
+  kpiLabel: { fontSize: '0.7rem', color: '#888', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' },
+  kpiValue: { fontSize: '1.6rem', fontWeight: '800', margin: '8px 0' },
   riskContainer: { marginBottom: '25px' },
-  subHeader: { fontSize: '1.1rem', marginBottom: '15px', color: '#2d3436' },
-  progressBarBg: { height: '12px', background: '#f1f2f6', borderRadius: '10px', overflow: 'hidden', marginBottom: '15px' },
-  progressBarFill: { height: '100%', transition: 'width 0.5s ease-in-out' },
-  statusAlert: { padding: '12px', borderRadius: '8px', fontSize: '0.9rem', fontWeight: '600', textAlign: 'center' },
+  subHeader: { fontSize: '0.9rem', marginBottom: '15px', color: '#fff', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 'bold' },
+  progressBarBg: { height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden', marginBottom: '15px' },
+  progressBarFill: { height: '100%', transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' },
+  statusAlert: { padding: '12px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 'bold', textAlign: 'center', border: '1px solid' },
   explanationSection: { marginBottom: '30px' },
   reasonList: { listStyle: 'none', padding: 0 },
-  reasonItem: { fontSize: '0.9rem', color: '#2d3436', marginBottom: '8px', paddingLeft: '5px' },
-  forecastSection: { background: '#f8f9fa', padding: '15px', borderRadius: '12px' },
-  cardLabel: { fontSize: '0.85rem', color: '#636e72', marginBottom: '15px' },
-  forecastFlex: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '60px' },
+  reasonItem: { fontSize: '0.9rem', color: '#ccc', marginBottom: '10px', paddingLeft: '5px', borderLeft: '2px solid rgba(255,179,0,0.3)' },
+  forecastSection: { background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' },
+  cardLabel: { fontSize: '0.75rem', color: '#666', marginBottom: '20px', textTransform: 'uppercase', fontWeight: 'bold' },
+  forecastFlex: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '80px' },
   forecastBox: { textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' },
-  hourLabel: { fontSize: '0.7rem', color: '#b2bec3' },
-  tempValue: { fontSize: '0.8rem', fontWeight: 'bold', color: '#0984e3' },
-  trendLine: { width: '4px', backgroundColor: '#74b9ff', borderRadius: '2px', marginTop: '5px' },
-  loadingContainer: { padding: '50px', textAlign: 'center', background: '#fff', borderRadius: '15px' }
+  hourLabel: { fontSize: '0.65rem', color: '#555', marginBottom: '5px' },
+  tempValue: { fontSize: '0.8rem', fontWeight: 'bold', color: '#eee' },
+  trendLine: { width: '6px', borderRadius: '3px 3px 0 0', marginTop: '10px', transition: 'height 0.5s ease' },
+  loadingContainer: { padding: '50px', textAlign: 'center', background: 'rgba(30, 30, 30, 0.8)', borderRadius: '16px' }
 };
 
 export default DecisionSection;

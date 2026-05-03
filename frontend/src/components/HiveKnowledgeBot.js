@@ -117,16 +117,96 @@ const HiveKnowledgeBot = () => {
 };
 
 const styles = {
-  botContainer: { background: '#ffffff', borderRadius: '16px', padding: '20px', boxShadow: '0 8px 30px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', width: '100%', maxWidth: '450px' },
-  botHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' },
-  botIcon: { fontSize: '1.5rem', background: '#fef3c7', padding: '8px', borderRadius: '50%' },
-  botTitle: { margin: 0, fontSize: '1.1rem', color: '#1a202c', fontWeight: 'bold' },
-  backBtn: { border: 'none', background: 'none', color: '#718096', cursor: 'pointer', fontSize: '0.8rem' },
-  messageBox: { background: '#fffaf0', padding: '15px', borderRadius: '12px', marginBottom: '15px', borderLeft: '5px solid #f6ad55' },
-  questionText: { margin: 0, fontSize: '0.95rem', color: '#2d3748', lineHeight: '1.5', fontWeight: '500' },
-  optionsContainer: { display: 'flex', flexDirection: 'column', gap: '10px' },
-  optionBtn: { background: '#fff', border: '1px solid #cbd5e0', color: '#4a5568', padding: '12px', borderRadius: '10px', cursor: 'pointer', fontSize: '0.85rem', textAlign: 'left', transition: '0.2s', fontWeight: '600' },
-  resetBtn: { background: '#2d3748', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }
+  botContainer: { 
+    background: 'rgba(30, 30, 30, 0.8)', 
+    borderRadius: '20px', 
+    padding: '24px', 
+    boxShadow: '0 12px 40px rgba(0,0,0,0.4)', 
+    border: '1px solid rgba(255, 255, 255, 0.05)', 
+    width: '100%', 
+    maxWidth: '450px',
+    backdropFilter: 'blur(15px)',
+    marginTop: '20px'
+  },
+  botHeader: { 
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: '20px',
+    borderBottom: '1px solid rgba(255,255,255,0.05)',
+    paddingBottom: '15px'
+  },
+  botIcon: { 
+    fontSize: '1.2rem', 
+    background: 'rgba(255, 179, 0, 0.1)', 
+    padding: '10px', 
+    borderRadius: '12px',
+    border: '1px solid rgba(255, 179, 0, 0.2)' 
+  },
+  botTitle: { 
+    margin: 0, 
+    fontSize: '1rem', 
+    color: '#fff', 
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: '1px'
+  },
+  backBtn: { 
+    border: 'none', 
+    background: 'none', 
+    color: '#666', 
+    cursor: 'pointer', 
+    fontSize: '0.75rem',
+    fontWeight: 'bold',
+    transition: 'color 0.2s'
+  },
+  messageBox: { 
+    background: 'rgba(255, 179, 0, 0.05)', 
+    padding: '18px', 
+    borderRadius: '15px 15px 15px 0px', 
+    marginBottom: '20px', 
+    borderLeft: '4px solid #ffb300',
+    boxShadow: 'inset 0 0 20px rgba(255, 179, 0, 0.02)'
+  },
+  questionText: { 
+    margin: 0, 
+    fontSize: '0.9rem', 
+    color: '#eee', 
+    lineHeight: '1.6', 
+    fontWeight: '500' 
+  },
+  optionsContainer: { 
+    display: 'flex', 
+    flexDirection: 'column', 
+    gap: '12px' 
+  },
+  optionBtn: { 
+    background: 'rgba(255,255,255,0.03)', 
+    border: '1px solid rgba(255,255,255,0.08)', 
+    color: '#ffb300', 
+    padding: '14px', 
+    borderRadius: '12px', 
+    cursor: 'pointer', 
+    fontSize: '0.85rem', 
+    textAlign: 'left', 
+    transition: 'all 0.3s ease', 
+    fontWeight: '600',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+  },
+  resetBtn: { 
+    background: '#ffb300', 
+    color: '#000', 
+    border: 'none', 
+    padding: '14px', 
+    borderRadius: '12px', 
+    cursor: 'pointer', 
+    fontWeight: '800',
+    fontSize: '0.85rem',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    marginTop: '10px',
+    boxShadow: '0 4px 15px rgba(255, 179, 0, 0.3)'
+  }
 };
 
 export default HiveKnowledgeBot;

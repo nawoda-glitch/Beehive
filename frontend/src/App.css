@@ -50,59 +50,221 @@ body {
   text-shadow: 0 0 10px rgba(255, 183, 0, 0.3); /* Subtle glow */
 }
 
-/* Layout Grids */
-.dashboard-main-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 25px;
-  margin-top: 25px;
+/* 1. The Main Container - Honeycomb with a subtle pulse */
+.dashboard-container {
+  min-height: 100vh;
+  padding: 40px 20px;
+  background-color: #0d0d0d;
+  background-image:  
+    radial-gradient(circle at 50% 50%, rgba(255, 179, 0, 0.05), transparent),
+    linear-gradient(30deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111), 
+    linear-gradient(150deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111);
+  background-size: 80px 140px;
 }
 
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 20px;
-  margin-top: 25px;
+/* 2. Base Card Styling */
+.bee-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(25, 25, 25, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
 
-.bot-full-width {
-  grid-column: 1 / -1;
-  margin-top: 25px;
+/* 3. The "Moving" Golden Glow Animation */
+@keyframes goldSweep {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(200%) translateY(200%) rotate(45deg); }
 }
 
-/* Common Themed Card Style (Add this class to all modular components) */
-.dashboard-card {
-  background: var(--bg-card);
-  border-radius: 16px;
-  border: 1px solid #222; /* Subtle border for separation */
-  padding: 25px;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.3s ease, border-color 0.3s ease;
+.gold-glow {
+  border: 1px solid rgba(255, 179, 0, 0.5) !important;
+  box-shadow: 0 0 20px rgba(255, 179, 0, 0.1), inset 0 0 10px rgba(255, 179, 0, 0.05) !important;
 }
 
-.dashboard-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--primary-gold); /* Glows gold on hover */
+/* This adds a moving light ray across the gold cards */
+.gold-glow::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    transparent,
+    rgba(255, 179, 0, 0.1),
+    transparent
+  );
+  animation: goldSweep 4s infinite linear;
+  pointer-events: none;
 }
 
-/* Loading Screen */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  color: var(--primary-gold);
+/* 4. The Value Pulse (Breathing effect) */
+@keyframes breathe {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 5px rgba(255, 179, 0, 0.4)); }
+  50% { opacity: 0.8; filter: drop-shadow(0 0 15px rgba(255, 179, 0, 0.8)); }
 }
 
-.loader {
-  border: 4px solid #333;
-  border-top: 4px solid var(--primary-gold);
-  border-radius: 50%;
+.live-value-gold {
+  animation: breathe 3s infinite ease-in-out;
+  font-family: 'Monaco', 'Courier New', monospace; /* Professional tech look */
+}
+
+/* 5. Hover Effects */
+.bee-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: #ffb300 !important;
+  z-index: 10;
+}
+
+
+/* Add a glow to the chart lines */
+.recharts-line-curve {
+  filter: drop-shadow(0px 0px 8px rgba(255, 179, 0, 0.5));
+}
+
+/* Style the chart container to match the cards */
+.recharts-responsive-container {
+  background: transparent;
+}
+
+/* Smooth transition for tooltip */
+.recharts-tooltip-wrapper {
+  transition: transform 0.2s ease-out;
+}
+
+/* Red pulse for predator detection */
+@keyframes predatorFlash {
+  0% { background-color: #e53e3e; transform: scale(1); }
+  50% { background-color: #ff0000; transform: scale(1.02); box-shadow: 0 0 30px rgba(255, 0, 0, 0.6); }
+  100% { background-color: #e53e3e; transform: scale(1); }
+}
+
+.predator-alarm {
+  animation: predatorFlash 1s infinite ease-in-out;
+}
+
+/* Make the icons glow slightly */
+.bee-card span {
+  filter: drop-shadow(0 0 5px rgba(255, 179, 0, 0.4));
+}
+
+
+/* --- 1. GLOBAL LAYOUT & HONEYCOMB BACKGROUND --- */
+body {
+  margin: 0;
+  background-color: #0d0d0d;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.dashboard-container {
+  min-height: 100vh;
+  padding: 40px 20px;
+  background-color: #0d0d0d;
+  /* Hexagonal Honeycomb Pattern */
+  background-image:  
+    radial-gradient(circle at 50% 50%, rgba(255, 179, 0, 0.05), transparent),
+    linear-gradient(30deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111), 
+    linear-gradient(150deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111),
+    linear-gradient(30deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111), 
+    linear-gradient(150deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111), 
+    linear-gradient(60deg, #181818 25%, transparent 25.5%, transparent 75%, #181818 75.5%, #181818), 
+    linear-gradient(60deg, #181818 25%, transparent 25.5%, transparent 75%, #181818 75.5%, #181818);
+  background-size: 80px 140px;
+  background-position: 0 0, 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+}
+
+/* --- 2. THE GLOWING "BEE-CARD" --- */
+.bee-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(30, 30, 30, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(12px);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.bee-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  border-color: rgba(255, 179, 0, 0.5) !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Moving Light Sweep (The Shine) */
+@keyframes goldSweep {
+  0% { transform: translateX(-150%) translateY(-150%) rotate(45deg); }
+  100% { transform: translateX(250%) translateY(250%) rotate(45deg); }
+}
+
+.bee-card::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    transparent,
+    rgba(255, 179, 0, 0.08),
+    transparent
+  );
+  animation: goldSweep 6s infinite linear;
+  pointer-events: none;
+}
+
+/* --- 3. ANIMATIONS & SPECIAL STATES --- */
+
+/* Breathing Golden Text */
+@keyframes goldPulse {
+  0%, 100% { text-shadow: 0 0 5px rgba(255, 179, 0, 0.2); opacity: 1; }
+  50% { text-shadow: 0 0 20px rgba(255, 179, 0, 0.6); opacity: 0.85; }
+}
+
+.live-value-gold {
+  animation: goldPulse 3s infinite ease-in-out;
+}
+
+/* Predator Alert Strobe */
+@keyframes predatorFlash {
+  0% { background-color: rgba(229, 62, 62, 0.8); transform: scale(1); box-shadow: 0 0 10px rgba(229, 62, 62, 0.4); }
+  50% { background-color: rgba(255, 0, 0, 1); transform: scale(1.03); box-shadow: 0 0 30px rgba(255, 0, 0, 0.7); }
+  100% { background-color: rgba(229, 62, 62, 0.8); transform: scale(1); box-shadow: 0 0 10px rgba(229, 62, 62, 0.4); }
+}
+
+.predator-alarm {
+  animation: predatorFlash 0.8s infinite ease-in-out !important;
+}
+
+/* Chart Glow */
+.recharts-line-curve {
+  filter: drop-shadow(0px 0px 8px rgba(255, 179, 0, 0.6));
+}
+
+/* --- 4. SCROLLBAR (Optional but recommended) --- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0d0d0d;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ffb300;
+}
+
+.spinner {
   width: 40px;
   height: 40px;
+  border: 4px solid rgba(255, 179, 0, 0.1);
+  border-top: 4px solid #ffb300;
+  border-radius: 50%;
+  margin: 0 auto;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
 }
 
 @keyframes spin {
@@ -110,398 +272,125 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* Status Badge */
-.status-badge {
-  background: rgba(0, 230, 118, 0.1);
-  padding: 8px 15px;
-  border-radius: 20px;
-  border: 1px solid var(--success-green);
-  font-size: 0.8rem;
-}
-
-/* Add this to App.css or a dedicated Cards.css */
-.metric-card {
-  background: var(--bg-card);
-  border: 1px solid #222;
-  border-radius: 12px;
-  padding: 20px;
-  position: relative;
-}
-
-.metric-card .icon {
-  font-size: 1.5rem;
-  color: var(--honey-accent);
-  margin-bottom: 10px;
-  display: block;
-}
-
-.metric-card h2 {
-  font-size: 2.5rem;
+/* --- 1. THE HONEYCOMB FOUNDATION --- */
+body {
   margin: 0;
-  color: var(--text-main);
-  font-weight: 800;
+  background-color: #0a0a0a; /* True dark background */
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #fff;
 }
 
-.metric-card p {
-  margin: 5px 0 0 0;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.dashboard-container {
+  min-height: 100vh;
+  padding: 40px 20px;
+  background-color: #0a0a0a;
+  /* Hexagonal Honeycomb Pattern */
+  background-image:  
+    radial-gradient(circle at 50% 50%, rgba(255, 179, 0, 0.03), transparent),
+    linear-gradient(30deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111), 
+    linear-gradient(150deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111),
+    linear-gradient(30deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111), 
+    linear-gradient(150deg, #111 12%, transparent 12.5%, transparent 87%, #111 87.5%, #111), 
+    linear-gradient(60deg, #161616 25%, transparent 25.5%, transparent 75%, #161616 75.5%, #161616), 
+    linear-gradient(60deg, #161616 25%, transparent 25.5%, transparent 75%, #161616 75.5%, #161616);
+  background-size: 80px 140px;
+  background-position: 0 0, 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
 }
 
-/* Add this to App.css or HiveIntelligence.css */
-.confidence-container {
-  height: 8px;
-  background: #1a1a1a;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 10px;
+/* --- 2. THE GLOWING BEE-CARD --- */
+.bee-card {
+  position: relative;
+  overflow: hidden; /* Important for the sweep animation */
+  background: rgba(28, 28, 28, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(15px);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
 
-.confidence-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary-gold), var(--honey-accent)); /* Honey Gradient ✅ */
-  border-radius: 10px;
-  transition: width 1s ease;
+.bee-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255, 179, 0, 0.4) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7) !important;
 }
 
-/* Golden Dark Bee Card */
-.dashboard-card {
-  background: var(--bg-card); /* #141414 */
-  border-radius: 24px; /* Extra rounded like your image */
-  padding: 30px;
-  border: 1px solid #222;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/* Moving Light Sweep (The Golden Shine) */
+@keyframes goldSweep {
+  0% { transform: translateX(-200%) translateY(-200%) rotate(45deg); }
+  100% { transform: translateX(300%) translateY(300%) rotate(45deg); }
 }
 
-/* The Horizontal Summary Row (Top of your image) */
-.card-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #333;
-  padding-bottom: 20px;
-  margin-bottom: 10px;
+.bee-card::after {
+  content: "";
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: linear-gradient(
+    to bottom right,
+    transparent,
+    rgba(255, 179, 0, 0.07),
+    transparent
+  );
+  animation: goldSweep 7s infinite linear;
+  pointer-events: none;
 }
 
-.stat-group {
-  text-align: left;
+/* --- 3. DANGER & ALERT STYLES --- */
+
+/* Predator Alert Strobe */
+@keyframes predatorFlash {
+  0% { background-color: rgba(229, 62, 62, 0.9); box-shadow: 0 0 5px rgba(229, 62, 62, 0.4); }
+  50% { background-color: rgba(255, 0, 0, 1); box-shadow: 0 0 25px rgba(255, 0, 0, 0.8); transform: scale(1.02); }
+  100% { background-color: rgba(229, 62, 62, 0.9); box-shadow: 0 0 5px rgba(229, 62, 62, 0.4); }
 }
 
-.stat-label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  display: block;
-  margin-bottom: 5px;
+.predator-alarm {
+  animation: predatorFlash 0.7s infinite ease-in-out !important;
 }
 
-.stat-value {
-  font-size: 1.4rem;
-  font-weight: 800;
+/* --- 4. DATA & UI ANIMATIONS --- */
+
+/* Breathing Golden Text */
+@keyframes goldPulse {
+  0%, 100% { text-shadow: 0 0 5px rgba(255, 179, 0, 0.3); opacity: 1; }
+  50% { text-shadow: 0 0 15px rgba(255, 179, 0, 0.7); opacity: 0.9; }
 }
 
-/* Color Overrides for States */
-.text-warning { color: var(--primary-gold); }
-.text-danger { color: var(--danger-red); }
-.text-success { color: var(--success-green); }
-
-/* The "Action Required" Box */
-.alert-box {
-  background: rgba(255, 61, 0, 0.1);
-  border: 1px solid var(--danger-red);
-  color: var(--danger-red);
-  padding: 12px;
-  border-radius: 12px;
-  text-align: center;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-/* Golden Dark Chatbot Styling */
-.chat-container {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-card); /* #141414 */
-  border-radius: 24px;
-  border: 1px solid #222;
-  box-shadow: var(--shadow-card);
-  height: 500px; /* Fixed height for dashboard consistency */
-  overflow: hidden;
+.live-value-gold {
+  animation: goldPulse 2.5s infinite ease-in-out;
 }
 
-.chat-header {
-  padding: 15px 20px;
-  background: #1a1a1a;
-  border-bottom: 1px solid #333;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-gold) transparent;
-}
-
-/* User Bubble - Subtle Gray */
-.msg-user {
-  align-self: flex-end;
-  background: #2d2d2d;
-  color: white;
-  padding: 10px 16px;
-  border-radius: 18px 18px 0 18px;
-  max-width: 80% ;
-  font-size: 0.9rem;
-}
-
-/* Bot Bubble - Golden/Honey */
-.msg-bot {
-  align-self: flex-start;
-  background: linear-gradient(135deg, var(--primary-gold), var(--honey-accent));
-  color: #000; /* Dark text on gold for readability */
-  padding: 10px 16px;
-  border-radius: 18px 18px 18px 0;
-  max-width: 80% ;
-  font-size: 0.9rem;
-  font-weight: 600;
-  box-shadow: 0 4px 10px rgba(255, 183, 0, 0.2);
-}
-
-.chat-input-area {
-  padding: 15px;
-  background: #1a1a1a;
-  display: flex;
-  gap: 10px;
-  border-top: 1px solid #333;
-}
-
-.chat-input {
-  flex: 1;
-  background: #0a0a0a;
-  border: 1px solid #333;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 12px;
-  outline: none;
-}
-
-.chat-input:focus {
-  border-color: var(--primary-gold);
-}
-
-.chat-send-btn {
-  background: var(--primary-gold);
-  border: none;
-  border-radius: 10px;
-  padding: 0 15px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: transform 0.2s;
-}
-
-.chat-send-btn:hover {
-  transform: scale(1.05);
-}
-
-/* Avatar styling from image */
-.bot-avatar {
-  background: #fef3c7; /* Light golden circle */
-  width: 35px;
-  height: 35px;
+/* Custom Spinner for AI Loading */
+.spinner {
+  width: 45px;
+  height: 45px;
+  border: 3px solid rgba(255, 179, 0, 0.1);
+  border-top: 3px solid #ffb300;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
+  margin: 0 auto;
+  animation: spin 1s linear infinite;
 }
 
-.quick-actions-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 15px;
-  padding: 0 10px;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.action-button {
-  display: flex;
-  align-items: center;
-  background: var(--bg-card);
-  border: 1px solid #333;
-  color: var(--text-main);
-  padding: 12px 20px;
-  border-radius: 14px;
-  cursor: pointer;
-  text-align: left;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  font-family: inherit;
+/* Recharts Line Glow */
+.recharts-line-curve {
+  filter: drop-shadow(0px 0px 8px rgba(255, 179, 0, 0.6));
 }
 
-.action-button:hover {
-  background: #1a1a1a;
-  border-color: var(--primary-gold);
+
+
+/* Styling for the Hive Bot Option Buttons */
+button:hover {
+  filter: brightness(1.2);
+}
+
+.optionBtn-hover:hover {
+  background: rgba(255, 179, 0, 0.1) !important;
+  border-color: #ffb300 !important;
   transform: translateX(5px);
-}
-
-.action-icon {
-  margin-right: 12px;
-  font-size: 1.1rem;
-}
-
-/* Update Bot Message for the "Instructional" look in your image */
-.msg-bot:first-child {
-  background: rgba(255, 183, 0, 0.05);
-  border-left: 4px solid var(--primary-gold);
-  color: var(--text-main);
-  border-radius: 8px;
-  font-weight: 400;
-}
-/* Container Override */
-.chatbot-card {
-    height: 600px;
-    padding: 0 !important; /* Let children handle padding */
-    display: flex;
-    flex-direction: column;
-}
-
-/* Expert Bot Header */
-.chat-header {
-    background: #1a1a1a;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    border-bottom: 1px solid #222;
-}
-
-.bot-avatar {
-    background: var(--primary-gold);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    box-shadow: 0 0 15px rgba(255, 183, 0, 0.4);
-}
-
-.gold-text {
-    color: var(--primary-gold);
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 800;
-}
-
-.online-indicator {
-    color: var(--success-green);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Message Bubbles */
-.chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.msg-bot {
-    background: #1c1c1c;
-    border-left: 4px solid var(--primary-gold);
-    color: var(--text-main);
-    padding: 12px 18px;
-    border-radius: 4px 15px 15px 15px;
-    max-width: 85%;
-    font-size: 0.95rem;
-}
-
-.msg-user {
-    align-self: flex-end;
-    background: #333;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 15px 15px 4px 15px;
-    max-width: 80%;
-    font-size: 0.9rem;
-}
-
-/* Expert Concern Buttons (Pills) */
-.quick-actions-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-.action-pill {
-    background: #111;
-    border: 1px solid #222;
-    color: var(--text-main);
-    padding: 14px 20px;
-    border-radius: 12px;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.action-pill:hover {
-    border-color: var(--primary-gold);
-    background: #1a1a1a;
-    transform: translateX(8px);
-}
-
-.pill-icon {
-    font-size: 1.2rem;
-}
-
-/* Input Area */
-.chat-input-area {
-    padding: 20px;
-    background: #1a1a1a;
-    border-top: 1px solid #222;
-    display: flex;
-    gap: 12px;
-}
-
-.chat-input {
-    flex: 1;
-    background: #000;
-    border: 1px solid #333;
-    color: white;
-    padding: 12px 18px;
-    border-radius: 10px;
-    outline: none;
-}
-
-.chat-input:focus {
-    border-color: var(--primary-gold);
-}
-
-.send-btn-gold {
-    background: var(--primary-gold);
-    color: black;
-    border: none;
-    padding: 0 20px;
-    border-radius: 10px;
-    font-weight: 800;
-    cursor: pointer;
 }

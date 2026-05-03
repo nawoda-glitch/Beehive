@@ -60,19 +60,22 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
   const manualConf = getConfidence(manualData);
 
   return (
-    <div style={styles.card}>
-      <h3 style={styles.title}>🧠 Hive Brain</h3>
+    <div style={styles.card} className="bee-card">
+      <h3 style={styles.title}><span>🧠</span> Hive Brain Intelligence</h3>
       
-      {/* 1. TOP BANNER (As seen in image_892196.png) */}
+      {/* 1. TOP BANNER - Dark Gold Theme */}
       <div style={{
         ...styles.statusBanner, 
-        backgroundColor: liveInsideSound <= 0 ? "#f7f7f7" : (manualConf > 70 ? "#e6fffa" : "#fff5f5")
+        backgroundColor: liveInsideSound <= 0 ? "rgba(255,255,255,0.03)" : "rgba(255, 179, 0, 0.05)",
+        borderColor: liveInsideSound <= 0 ? "#333" : "rgba(255, 179, 0, 0.3)"
       }}>
         <span style={styles.label}>QUEEN STATE DETECTION</span>
         {liveInsideSound <= 0 ? (
-          <h2 style={{ color: "#636e72" }}>🔇 Sensors Offline</h2>
+          <h2 style={{ color: "#666", margin: "10px 0" }}>🔇 Sensors Offline</h2>
         ) : (
-          <h2 style={{ color: '#2d3436' }}>{getResultText(predictionData)}</h2>
+          <h2 style={{ color: '#ffb300', margin: "10px 0", textShadow: '0 0 15px rgba(255,179,0,0.3)' }}>
+            {getResultText(predictionData)}
+          </h2>
         )}
         <p style={styles.confText}>Confidence: {getConfidence(predictionData)}%</p>
       </div>
@@ -92,26 +95,25 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
       {manualData && (
         <div style={styles.reportCard}>
           <div style={styles.reportHeader}>
-             <span>Manual Report: <strong>{getResultText(manualData)}</strong></span>
-             <span style={{...styles.badge, backgroundColor: getConfidenceColor(manualConf)}}>
-               {manualConf}% Accurate
-             </span>
+              <span style={{color: '#fff'}}>Manual Report: <strong style={{color: '#ffb300'}}>{getResultText(manualData)}</strong></span>
+              <span style={{...styles.badge, backgroundColor: getConfidenceColor(manualConf)}}>
+                {manualConf}% Accurate
+              </span>
           </div>
 
-          {/* Confidence Progress Bar */}
           <div style={styles.progressContainer}>
             <div style={{...styles.progressBar, width: `${manualConf}%`, backgroundColor: getConfidenceColor(manualConf)}} />
           </div>
 
           <div style={styles.metricGrid}>
-             <div style={styles.metricItem}>
-               <span style={styles.miniLabel}>FREQUENCY CENTROID</span>
-               <div style={styles.value}>{Math.round(manualData.metrics?.centroid || 0)} Hz</div>
-             </div>
-             <div style={styles.metricItem}>
-               <span style={styles.miniLabel}>ENERGY LEVEL</span>
-               <div style={styles.value}>{(manualData.metrics?.energy || 0).toFixed(4)}</div>
-             </div>
+              <div style={styles.metricItem}>
+                <span style={styles.miniLabel}>FREQUENCY CENTROID</span>
+                <div style={styles.value}>{Math.round(manualData.metrics?.centroid || 0)} Hz</div>
+              </div>
+              <div style={styles.metricItem}>
+                <span style={styles.miniLabel}>ENERGY LEVEL</span>
+                <div style={styles.value}>{(manualData.metrics?.energy || 0).toFixed(4)}</div>
+              </div>
           </div>
         </div>
       )}
@@ -120,27 +122,55 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
 };
 
 const styles = {
-  card: { background: '#fff', padding: '25px', borderRadius: '15px', border: '1px solid #e1e4e8', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', maxWidth: '600px' },
-  title: { margin: '0 0 20px 0', fontSize: '1.4rem', display: 'flex', alignItems: 'center', gap: '10px' },
-  statusBanner: { padding: '30px', borderRadius: '12px', textAlign: 'center', marginBottom: '25px', border: '1px solid #eee' },
-  label: { fontSize: '0.7rem', fontWeight: '800', color: '#a0aec0', letterSpacing: '1px' },
-  confText: { fontSize: '0.85rem', color: '#718096', marginTop: '10px' },
+  card: { 
+    background: 'rgba(30, 30, 30, 0.8)', 
+    padding: '25px', 
+    borderRadius: '16px', 
+    border: '1px solid rgba(255, 255, 255, 0.05)', 
+    boxShadow: '0 8px 32px rgba(0,0,0,0.3)', 
+    maxWidth: '600px',
+    backdropFilter: 'blur(12px)',
+    marginTop: '20px'
+  },
+  title: { margin: '0 0 20px 0', fontSize: '1.2rem', color: '#fff', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', display: 'flex', alignItems: 'center', gap: '10px' },
+  statusBanner: { padding: '30px', borderRadius: '12px', textAlign: 'center', marginBottom: '25px', border: '1px solid transition: all 0.3s ease' },
+  label: { fontSize: '0.7rem', fontWeight: '800', color: '#888', letterSpacing: '2px' },
+  confText: { fontSize: '0.8rem', color: '#666', marginTop: '5px' },
   labSection: { marginBottom: '20px' },
-  subHeader: { fontSize: '1rem', color: '#2d3436', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' },
-  actionRow: { display: 'flex', gap: '10px', alignItems: 'center', background: '#f8f9fa', padding: '10px', borderRadius: '8px' },
-  fileInput: { fontSize: '0.8rem' },
-  btn: { background: '#ffa500', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', transition: '0.2s' },
+  subHeader: { fontSize: '0.9rem', color: '#aaa', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px' },
+  actionRow: { display: 'flex', gap: '15px', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' },
+  fileInput: { fontSize: '0.8rem', color: '#ccc' },
+  btn: { 
+    background: '#ffb300', 
+    color: '#000', 
+    border: 'none', 
+    padding: '10px 20px', 
+    borderRadius: '8px', 
+    cursor: 'pointer', 
+    fontWeight: '800', 
+    textTransform: 'uppercase',
+    fontSize: '0.75rem',
+    transition: '0.2s',
+    boxShadow: '0 4px 15px rgba(255, 179, 0, 0.2)'
+  },
   
   // Professional Report Styling
-  reportCard: { marginTop: '20px', padding: '20px', borderRadius: '12px', borderLeft: '5px solid #3182ce', background: '#f0f7ff' },
-  reportHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', fontSize: '1rem' },
-  badge: { color: '#fff', padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' },
-  progressContainer: { height: '8px', background: '#e2e8f0', borderRadius: '10px', marginBottom: '20px', overflow: 'hidden' },
-  progressBar: { height: '100%', transition: 'width 1s ease-in-out' },
+  reportCard: { 
+    marginTop: '20px', 
+    padding: '20px', 
+    borderRadius: '12px', 
+    borderLeft: '4px solid #ffb300', 
+    background: 'rgba(255, 179, 0, 0.03)',
+    border: '1px solid rgba(255, 179, 0, 0.1)'
+  },
+  reportHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', fontSize: '0.9rem' },
+  badge: { color: '#fff', padding: '4px 12px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 'bold', textTransform: 'uppercase' },
+  progressContainer: { height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', marginBottom: '20px', overflow: 'hidden' },
+  progressBar: { height: '100%', transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' },
   metricGrid: { display: 'flex', gap: '15px' },
-  metricItem: { flex: 1, background: '#fff', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0', textAlign: 'center' },
-  miniLabel: { fontSize: '0.6rem', color: '#a0aec0', fontWeight: 'bold', display: 'block', marginBottom: '5px' },
-  value: { fontSize: '1.1rem', fontWeight: '700', color: '#2d3436' }
+  metricItem: { flex: 1, background: 'rgba(0,0,0,0.2)', padding: '15px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' },
+  miniLabel: { fontSize: '0.6rem', color: '#666', fontWeight: '800', display: 'block', marginBottom: '5px', letterSpacing: '1px' },
+  value: { fontSize: '1.2rem', fontWeight: '700', color: '#eee' }
 };
 
 export default HiveIntelligence;
