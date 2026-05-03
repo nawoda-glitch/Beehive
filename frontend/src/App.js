@@ -82,7 +82,10 @@ function App() {
     fetch("/api/predict-external-threat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ soundOutside: data.soundOutside })
+      body: JSON.stringify({ 
+        soundOutside: data.soundOutside,
+        vibration: data.vibration 
+      })
     })
     .then(res => res.json())
     .then(res => setSoundPrediction(res))
