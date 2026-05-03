@@ -73,19 +73,26 @@ const DecisionSection = ({ aiData }) => {
       {/* 5. LSTM Forecast Bar */}
       <div style={styles.forecastSection}>
         <h4 style={styles.cardLabel}>📈 LSTM Temperature Projection (Next 5 Hours)</h4>
-        <div style={styles.forecastFlex}>
-          {aiData.forecast_data.map((temp, i) => (
-            <div key={i} style={styles.forecastBox}>
-              <div style={styles.hourLabel}>+{i + 1}h</div>
-              <div style={styles.tempValue}>{temp}°C</div>
-              <div style={{
-                ...styles.trendLine, 
-                height: `${(temp / 45) * 100}%`,
-                backgroundColor: temp > 35 ? '#ff4d4d' : '#ffb300'
-              }}></div>
-            </div>
-          ))}
-        </div>
+        
+        {!aiData.forecast_data || aiData.forecast_data.length === 0 ? (
+           <div style={{ textAlign: 'center', padding: '20px', color: '#666', fontSize: '0.8rem' }}>
+             LSTM Forecast Model is currently analyzing historical data...
+           </div>
+        ) : (
+          <div style={styles.forecastFlex}>
+            {aiData.forecast_data.map((temp, i) => (
+              <div key={i} style={styles.forecastBox}>
+                <div style={styles.hourLabel}>+{i + 1}h</div>
+                <div style={styles.tempValue}>{temp}°C</div>
+                <div style={{
+                  ...styles.trendLine, 
+                  height: `${(temp / 45) * 100}%`,
+                  backgroundColor: temp > 35 ? '#ff4d4d' : '#ffb300'
+                }}></div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

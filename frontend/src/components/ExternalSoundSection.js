@@ -57,18 +57,34 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction }) => {
         {/* AI Prediction Display */}
         <div style={{
           ...styles.predictionBox, 
-          backgroundColor: isHornet ? 'rgba(229, 62, 62, 0.1)' : 'rgba(255, 179, 0, 0.05)',
-          borderColor: isHornet ? '#ff4d4d' : '#ffb300'
+          backgroundColor: isHornet ? 'rgba(229, 62, 62, 0.15)' : 'rgba(56, 161, 105, 0.1)',
+          borderColor: isHornet ? '#ff4d4d' : '#38a169',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center'
         }}>
           <span style={styles.label}>{manualPrediction ? "Manual Classification" : "Live Classification"}</span>
-          <h3 style={{ 
-            color: isHornet ? '#ff4d4d' : '#ffb300', 
-            margin: '5px 0',
-            textShadow: isHornet ? '0 0 10px rgba(255, 77, 77, 0.5)' : 'none'
+          <h2 style={{ 
+            color: isHornet ? '#ff4d4d' : '#38a169', 
+            fontSize: '2rem',
+            margin: '10px 0',
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            textShadow: isHornet ? '0 0 15px rgba(255, 77, 77, 0.6)' : '0 0 15px rgba(56, 161, 105, 0.4)'
           }}>
             {detectionText}
-          </h3>
-          <p style={styles.confidence}>Confidence: {confidenceVal}%</p>
+          </h2>
+          <span style={{
+             background: 'rgba(0,0,0,0.3)',
+             padding: '4px 10px',
+             borderRadius: '12px',
+             fontSize: '0.8rem',
+             color: '#fff',
+             fontWeight: 'bold'
+          }}>
+             Confidence: {confidenceVal}%
+          </span>
         </div>
       </div>
 
