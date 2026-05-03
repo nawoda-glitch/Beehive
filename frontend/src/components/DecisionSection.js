@@ -71,9 +71,9 @@ const DecisionSection = ({ aiData }) => {
         </ul>
       </div>
 
-      {/* 5. LSTM Forecast Graph (5 Days) */}
+      {/* 5. LSTM Forecast Graph (7 Days) */}
       <div style={styles.forecastSection}>
-        <h4 style={styles.cardLabel}>📈 LSTM Temperature Projection (Next 5 Days)</h4>
+        <h4 style={styles.cardLabel}>📈 NEXT WEEK HIVE STATUS PROJECTION (7 DAYS)</h4>
         
         {!aiData.forecast_data || aiData.forecast_data.length === 0 ? (
            <div style={{ textAlign: 'center', padding: '40px', color: '#666', fontSize: '0.8rem' }}>
@@ -103,7 +103,10 @@ const DecisionSection = ({ aiData }) => {
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#222', borderColor: '#444', borderRadius: '8px' }}
                   itemStyle={{ color: '#ffb300' }}
-                  formatter={(value) => [`${value}°C`, 'Temperature']}
+                  formatter={(value, name, props) => {
+                    if (name === 'temp') return [`${value}°C (${props.payload.status})`, 'Projection'];
+                    return [value, name];
+                  }}
                 />
                 <Line 
                   type="monotone" 
