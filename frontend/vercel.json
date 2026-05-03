@@ -1,8 +1,10 @@
 {
   "rewrites": [
-    { 
-      "source": "/api/(.*)", 
-      "destination": "https://beehiveapi.vercel.app/api/$1" 
-    }
+    { "source": "/api/predict-advanced",        "destination": "https://beehiveapi.vercel.app/predict-advanced" },
+    { "source": "/api/predict-sound",           "destination": "https://beehiveapi.vercel.app/predict-sound" },
+    { "source": "/api/predict-external-threat", "destination": "https://beehiveapi.vercel.app/predict-external-threat" },
+    { "source": "/api/predict-hive-intelligence","destination": "https://beehiveapi.vercel.app/predict-hive-intelligence" },
+    { "source": "/api/predict-hive-live",       "destination": "https://beehiveapi.vercel.app/predict-hive-live" },
+    { "source": "/api/chat",                    "destination": "https://beehiveapi.vercel.app/api/chat" }
   ]
 }

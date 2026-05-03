@@ -29,7 +29,7 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
   const fetchLivelyPrediction = async () => {
     setIsSyncing(true);
     try {
-      const res = await fetch("https://beehiveapi.vercel.app/predict-hive-intelligence", {
+      const res = await fetch("/api/predict-hive-intelligence", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ soundInside: liveInsideSound, temperature: temp }),
@@ -48,7 +48,7 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
     formData.append('file', file);
 
     try {
-      const res = await fetch("https://beehiveapi.vercel.app/predict-hive-intelligence", {
+      const res = await fetch("/api/predict-hive-intelligence", {
         method: "POST",
         body: formData,
       });
