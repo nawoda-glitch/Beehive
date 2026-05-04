@@ -135,24 +135,24 @@ function App() {
 
   return (
     <div className="dashboard-container">
-      {/* LUXURY HEADER */}
+      {/* BYTEBEES CYBER HEADER */}
       <header className="app-header">
         <div style={{ position: 'relative', zIndex: 10 }}>
           <h1 style={{ margin: 0 }}>
-            BEENET <span style={{fontWeight: 300, opacity: 0.6}}>AI</span>
+            BYTEBEES<span style={{color: '#fff', fontSize: '1rem', marginLeft: '10px'}}>v2.0_</span>
           </h1>
-          <p style={{ margin: '5px 0 0 0', color: '#666', letterSpacing: '3px', fontSize: '0.6rem', fontWeight: 700 }}>
-             INTELLIGENT HIVE MONITORING SYSTEM
+          <p style={{ margin: '0', color: '#ffcc00', letterSpacing: '5px', fontSize: '0.8rem', fontWeight: 700, opacity: 0.8 }}>
+             NEURAL_HIVE_NETWORK
           </p>
         </div>
         
-        <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '30px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
           <div style={{ textAlign: 'right' }}>
-            <div className="live-value-gold" style={{ fontSize: '0.7rem', fontWeight: 700 }}>
-              SYNC_ACTIVE: {new Date().toLocaleTimeString()}
+            <div className="live-value-gold" style={{ fontSize: '1.2rem' }}>
+              {new Date().toLocaleTimeString()}
             </div>
-            <div style={{ color: '#38a169', fontWeight: '800', fontSize: '0.6rem', marginTop: '4px' }}>
-              ● NEURAL NODE ONLINE
+            <div style={{ color: '#00ff41', fontWeight: 'bold', fontSize: '0.7rem', marginTop: '2px', fontFamily: 'monospace' }}>
+              SYNC: ONLINE_
             </div>
           </div>
           
@@ -162,7 +162,7 @@ function App() {
             rel="noopener noreferrer"
             className="portalBtn"
           >
-            Render Hub ↗
+            RENDER_HUB_
           </a>
         </div>
       </header>
