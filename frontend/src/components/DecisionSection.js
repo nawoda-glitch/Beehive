@@ -71,7 +71,31 @@ const DecisionSection = ({ aiData }) => {
         </ul>
       </div>
 
-      {/* 5. LSTM Forecast Graph (7 Days) */}
+      {/* 5. Smart Recommendations */}
+      <div style={styles.actionPlanSection}>
+        <h3 style={styles.subHeader}>🛠️ AI-Driven Action Plan</h3>
+        <div style={styles.recommendationCard}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <span style={{ fontSize: '1.5rem' }}>
+              {aiData.risk_score > 60 ? '🚨' : aiData.status.health !== 'Healthy' ? '💊' : '✅'}
+            </span>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 'bold', color: '#fff' }}>
+                {aiData.risk_score > 60 ? "CRITICAL INTERVENTION" : "PREVENTATIVE CARE"}
+              </p>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: '#888' }}>
+                {aiData.risk_score > 60 
+                  ? "Neural patterns suggest extreme stress. Check for predators or Varroa immediately." 
+                  : aiData.status.health !== 'Healthy' 
+                    ? "Sub-optimal health detected. Recommend organic treatment or ventilation check."
+                    : "No immediate action required. Maintain current environmental monitoring."}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 6. LSTM Forecast Graph (7 Days) */}
       <div style={styles.forecastSection}>
         <h4 style={styles.cardLabel}>📈 NEXT WEEK HIVE STATUS PROJECTION (7 DAYS)</h4>
         
@@ -154,6 +178,13 @@ const styles = {
   reasonList: { listStyle: 'none', padding: 0 },
   reasonItem: { fontSize: '0.9rem', color: '#ccc', marginBottom: '10px', paddingLeft: '5px', borderLeft: '2px solid rgba(255,179,0,0.3)' },
   forecastSection: { background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' },
+  actionPlanSection: { marginBottom: '25px' },
+  recommendationCard: { 
+    background: 'linear-gradient(to right, rgba(255,179,0,0.05), transparent)', 
+    padding: '15px', 
+    borderRadius: '12px', 
+    border: '1px solid rgba(255,179,0,0.2)' 
+  },
   cardLabel: { fontSize: '0.75rem', color: '#666', marginBottom: '20px', textTransform: 'uppercase', fontWeight: 'bold' },
   forecastFlex: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '80px' },
   forecastBox: { textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' },
