@@ -16,7 +16,6 @@ import SoundAnalysisSection from './components/SoundAnalysisSection';
 import ExternalSoundSection from './components/ExternalSoundSection';
 import HiveIntelligence from './components/HiveIntelligence';
 import HiveDecisionSupport from './components/HiveDecisionSupport';
-import HiveKnowledgeBot from './components/HiveKnowledgeBot';
 import ExternalHub from './components/ExternalHub';
 
 function App() {
@@ -186,8 +185,7 @@ function App() {
       </div>
 
       {/* 5. BOTTOM UTILITIES */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
-         <HiveKnowledgeBot data={data} aiData={aiData} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '30px' }}>
          <ExternalHub />
       </div>
     </div>
