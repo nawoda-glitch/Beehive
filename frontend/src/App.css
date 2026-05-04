@@ -109,6 +109,7 @@ body {
   transform: scale(1.2);
   color: var(--primary-gold);
 }
+.dashboard-main-grid {
   display: grid;
   grid-template-columns: 1fr 400px;
   gap: 30px;
