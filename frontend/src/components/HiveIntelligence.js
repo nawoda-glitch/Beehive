@@ -3,7 +3,7 @@ import { db } from '../services/firebase';
 import { ref, set } from 'firebase/database';
 import { API_BASE_URL } from "../config";
 
-const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
+const HiveIntelligence = ({ liveInsideSound, temp, timestamp, queenStatus }) => {
   const [predictionData, setPredictionData] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [file, setFile] = useState(null);
