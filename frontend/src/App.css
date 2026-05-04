@@ -22,6 +22,8 @@ body {
 .dashboard-container {
   min-height: 100vh;
   padding: 40px;
+  max-width: 1500px;
+  margin: 0 auto;
   position: relative;
 }
 
