@@ -163,24 +163,21 @@ function App() {
              liveInsideSound={data?.soundInside} 
              temp={data?.tempInside} 
              timestamp={data?.timestamp}
+             queenStatus={hiveAnalysis?.queen_status}
            />
         </div>
 
         {/* BELOW HORNET: QUEEN CORE HEALTH */}
         <div className="bee-card hero-main-card span-2" style={{ height: 'auto', minHeight: '400px' }}>
           <div>
-            <span className="status-badge" style={{ color: '#38a169' }}>● SYSTEM SYNCED</span>
-            <h1 style={{ fontSize: '2rem', marginTop: '15px' }}>QUEEN <span style={{fontWeight: 200}}>CORE</span></h1>
+            <span className="status-badge" style={{ color: '#38a169' }}>● SYSTEM ONLINE</span>
+            <h1 style={{ fontSize: '4rem', marginTop: '30px', marginBottom: '10px', letterSpacing: '8px' }}>BYTEBEES</h1>
           </div>
           
           <div className="hero-stats">
             <div className="hero-stat-item">
               <p style={{ margin: 0, fontSize: '0.7rem', color: '#666', letterSpacing: '2px' }}>RISK INDEX</p>
               <h2 className="live-value-gold">{aiData?.risk_percent || "0"}%</h2>
-            </div>
-            <div className="hero-stat-item" style={{ borderLeft: '1px solid #333', paddingLeft: '40px' }}>
-              <p style={{ margin: 0, fontSize: '0.7rem', color: '#666', letterSpacing: '2px' }}>QUEEN STATUS</p>
-              <h2 style={{ fontSize: '2rem', color: '#fff', marginTop: '10px' }}>{hiveAnalysis?.queen_status || "Stable"}</h2>
             </div>
           </div>
         </div>

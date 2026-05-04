@@ -125,15 +125,15 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
         backgroundColor: liveInsideSound <= 0 ? "rgba(255,255,255,0.03)" : "rgba(255, 179, 0, 0.05)",
         borderColor: liveInsideSound <= 0 ? "#333" : "rgba(255, 179, 0, 0.3)"
       }}>
-        <span style={styles.label}>QUEEN STATE DETECTION</span>
+        <span style={styles.label}>QUEEN BEE PRESENCE</span>
         {liveInsideSound <= 0 ? (
           <h2 style={{ color: "#666", margin: "10px 0" }}>🔇 Sensors Offline</h2>
         ) : (
           <h2 style={{ color: '#ffb300', margin: "10px 0", textShadow: '0 0 15px rgba(255,179,0,0.3)' }}>
-            {getResultText(predictionData)}
+            {queenStatus || getResultText(predictionData)}
           </h2>
         )}
-        <p style={styles.confText}>Confidence: {getConfidence(predictionData)}%</p>
+        <p style={styles.confText}>Real-time Node Analysis Sync</p>
       </div>
 
       {/* 2. LABORATORY ANALYSIS SECTION */}
