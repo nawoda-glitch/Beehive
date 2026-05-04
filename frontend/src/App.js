@@ -135,14 +135,6 @@ function App() {
 
   return (
     <div className="dashboard-container">
-      {/* 1. SIDE NAVIGATION DOCK */}
-      <div className="side-dock">
-        <div className="dock-icon" title="Monitor">📊</div>
-        <div className="dock-icon" title="AI Chat">🤖</div>
-        <div className="dock-icon" title="External Hub">🌐</div>
-        <div className="dock-icon" title="Alerts">🚨</div>
-      </div>
-
       {/* 2. CINEMATIC HEADER */}
       <header className="app-header">
         <div style={{ position: 'relative', zIndex: 10 }}>

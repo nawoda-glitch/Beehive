@@ -79,36 +79,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.03) !important;
   box-shadow: 0 20px 80px rgba(0, 0, 0, 0.4) !important;
 }
-
-/* Side Navigation Dock */
-.side-dock {
-  position: fixed;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  background: rgba(20, 20, 20, 0.5);
-  backdrop-filter: blur(10px);
-  padding: 15px;
-  border-radius: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  z-index: 100;
-}
-
-.dock-icon {
-  font-size: 1.2rem;
-  opacity: 0.5;
-  transition: 0.3s;
-  cursor: pointer;
-}
-
-.dock-icon:hover {
-  opacity: 1;
-  transform: scale(1.2);
-  color: var(--primary-gold);
-}
 .dashboard-main-grid {
   display: grid;
   grid-template-columns: 1fr 400px;
