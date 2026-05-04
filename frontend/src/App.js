@@ -169,24 +169,11 @@ function App() {
            />
         </div>
 
-        {/* BELOW HORNET: QUEEN CORE HEALTH */}
-        <div className="bee-card hero-main-card span-2" style={{ height: 'auto', minHeight: '400px' }}>
-          <div>
-            <span className="status-badge" style={{ color: '#38a169' }}>● SYSTEM ONLINE</span>
-            <h1 style={{ fontSize: '4rem', marginTop: '30px', marginBottom: '10px', letterSpacing: '8px' }}>BYTEBEES</h1>
-          </div>
-          
-          <div className="hero-stats">
-            <div className="hero-stat-item">
-              <p style={{ margin: 0, fontSize: '0.7rem', color: '#666', letterSpacing: '2px' }}>RISK INDEX</p>
-              <h2 className="live-value-gold">{aiData?.risk_percent || "0"}%</h2>
-            </div>
-          </div>
+        {/* TOP LEFT: LIVE SENSOR DATA */}
+        <div className="span-2">
+          <Cards data={data} />
         </div>
 
-        {/* SENSOR DATA & ANALYTICS */}
-        <div className="span-2"><Cards data={data} /></div>
-        
         <div className="bee-card span-2" style={{ padding: '25px' }}>
            <h3 style={{ fontSize: '0.8rem', color: '#666', marginBottom: '20px' }}>7-Day Forecast Projection</h3>
            <DecisionSection aiData={aiData} />
