@@ -135,38 +135,35 @@ function App() {
 
   return (
     <div className="dashboard-container">
-      {/* CINEMATIC HEADER */}
+      {/* LUXURY HEADER */}
       <header className="app-header">
         <div style={{ position: 'relative', zIndex: 10 }}>
-          <h1 style={{ margin: 0, fontSize: '2.5rem' }}>
-            BEENET <span style={{fontWeight: 200}}>AI COMMAND</span>
+          <h1 style={{ margin: 0 }}>
+            BEENET <span style={{fontWeight: 300, opacity: 0.6}}>AI</span>
           </h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
-            <div className="sonar-active" style={{ width: '10px', height: '10px', background: '#38a169', borderRadius: '50%' }} />
-            <small style={{ color: '#aaa', letterSpacing: '2px' }}>
-               CORE NODE: HIVE_PRO_01 | STATUS: ENCRYPTED_SYNC
-            </small>
-          </div>
+          <p style={{ margin: '5px 0 0 0', color: '#666', letterSpacing: '3px', fontSize: '0.6rem', fontWeight: 700 }}>
+             INTELLIGENT HIVE MONITORING SYSTEM
+          </p>
         </div>
         
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ marginBottom: '10px' }}>
-             <a 
-               href="https://bee-monitor.onrender.com/" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className="portalBtn"
-               style={{ padding: '8px 20px', fontSize: '0.7rem' }}
-             >
-               Launch Render Hub ↗
-             </a>
+        <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '30px' }}>
+          <div style={{ textAlign: 'right' }}>
+            <div className="live-value-gold" style={{ fontSize: '0.7rem', fontWeight: 700 }}>
+              SYNC_ACTIVE: {new Date().toLocaleTimeString()}
+            </div>
+            <div style={{ color: '#38a169', fontWeight: '800', fontSize: '0.6rem', marginTop: '4px' }}>
+              ● NEURAL NODE ONLINE
+            </div>
           </div>
-          <div className="live-value-gold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>
-            SYSTEM TIME: {new Date().toLocaleTimeString()}
-          </div>
-          <div style={{ marginTop: '5px', color: '#38a169', fontWeight: '800', fontSize: '0.7rem' }}>
-            ● NEURAL NETWORK ONLINE
-          </div>
+          
+          <a 
+            href="https://bee-monitor.onrender.com/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="portalBtn"
+          >
+            Render Hub ↗
+          </a>
         </div>
       </header>
       
