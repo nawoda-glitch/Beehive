@@ -156,15 +156,29 @@ function App() {
            </a>
            <div className="live-value-gold" style={{ fontSize: '0.8rem' }}>{new Date().toLocaleTimeString()}</div>
         </div>
-      </header>
+      {/* 3. BENTO COMMAND HUB */}
+      <div className="bento-grid">
+        {/* TOP LEFT: HORNET THREAT CONSOLE */}
+        <div className="bee-card hornet-box-expanded" style={{ padding: '35px' }}>
+           <h3 style={{ fontSize: '0.9rem', color: '#888', marginBottom: '25px', letterSpacing: '2px' }}>🚨 THREAT ANALYSIS CONSOLE</h3>
+           <ExternalSoundSection outsideSound={data.soundOutside} soundPrediction={soundPrediction} />
+        </div>
 
-      {/* 3. IMMERSIVE HERO SECTION */}
-      <div className="hero-section">
-        <div className="bee-card hero-main-card">
+        {/* TOP RIGHT: ACOUSTIC SPECTRUM */}
+        <div className="bee-card span-2" style={{ padding: '30px', height: '100%' }}>
+           <h3 style={{ fontSize: '0.8rem', color: '#666', marginBottom: '20px' }}>Acoustic Intelligence</h3>
+           <HiveIntelligence 
+             liveInsideSound={data?.soundInside} 
+             temp={data?.tempInside} 
+             timestamp={data?.timestamp}
+           />
+        </div>
+
+        {/* BELOW HORNET: QUEEN CORE HEALTH */}
+        <div className="bee-card hero-main-card span-2" style={{ height: 'auto', minHeight: '400px' }}>
           <div>
-            <span className="status-badge" style={{ color: '#38a169' }}>● REAL-TIME ANALYSIS ACTIVE</span>
-            <h1 style={{ fontSize: '3rem', marginTop: '20px', marginBottom: '10px' }}>HIVE CORE <span style={{fontWeight: 200}}>HEALTH</span></h1>
-            <p style={{ color: '#888', maxWidth: '400px' }}>Our Neural Network is currently processing acoustic signatures from Node 01. Queen vibration is stable.</p>
+            <span className="status-badge" style={{ color: '#38a169' }}>● SYSTEM SYNCED</span>
+            <h1 style={{ fontSize: '2rem', marginTop: '15px' }}>QUEEN <span style={{fontWeight: 200}}>CORE</span></h1>
           </div>
           
           <div className="hero-stats">
@@ -179,19 +193,7 @@ function App() {
           </div>
         </div>
 
-        <div className="bee-card" style={{ padding: '30px' }}>
-           <h3 style={{ fontSize: '0.8rem', color: '#666' }}>Acoustic Spectrum</h3>
-           <HiveIntelligence 
-             liveInsideSound={data?.soundInside} 
-             temp={data?.tempInside} 
-             timestamp={data?.timestamp}
-           />
-        </div>
-      </div>
-
-      {/* 4. THE BENTO GRID */}
-      <div className="bento-grid">
-        {/* Sensor Cards (Mapped to Bento) */}
+        {/* SENSOR DATA & ANALYTICS */}
         <div className="span-2"><Cards data={data} /></div>
         
         <div className="bee-card span-2" style={{ padding: '25px' }}>
@@ -199,25 +201,9 @@ function App() {
            <DecisionSection aiData={aiData} />
         </div>
 
-        <div className="bee-card span-3" style={{ padding: '25px' }}>
+        <div className="bee-card span-4" style={{ padding: '25px' }}>
            <h3 style={{ fontSize: '0.8rem', color: '#666', marginBottom: '20px' }}>Frequency & Humidity Historicals</h3>
            <Charts history={history} />
-        </div>
-
-        <div className="bee-card hornet-box-expanded" style={{ padding: '35px' }}>
-           <h3 style={{ fontSize: '0.9rem', color: '#888', marginBottom: '25px', letterSpacing: '2px' }}>🚨 THREAT ANALYSIS CONSOLE</h3>
-           <ExternalSoundSection outsideSound={data.soundOutside} soundPrediction={soundPrediction} />
-        </div>
-
-        <div className="span-2"><SoundAnalysisSection /></div>
-        
-        <div className="bee-card" style={{ padding: '25px' }}>
-           <h3 style={{ fontSize: '0.8rem', color: '#666' }}>External Node</h3>
-           <a href="https://bee-monitor.onrender.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-             <div style={{ height: '150px', background: 'rgba(255,179,0,0.05)', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '20px', border: '1px dashed #444' }}>
-               <span style={{ color: '#ffb300' }}>Open Hub ↗</span>
-             </div>
-           </a>
         </div>
       </div>
 
