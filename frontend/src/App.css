@@ -26,24 +26,25 @@ body {
 }
 
 .hero-main-card {
-  height: 450px;
+  height: 550px; /* Increased from 450px */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 40px !important;
+  padding: 50px !important;
   background: radial-gradient(circle at top right, rgba(255, 179, 0, 0.15), transparent), var(--glass-bg) !important;
+  border-left: 5px solid var(--primary-gold) !important;
 }
 
-.hero-stats {
-  display: flex;
-  gap: 40px;
-  margin-top: 20px;
+.hero-stats h2 {
+  font-size: 4rem !important; /* Massive font for Queen Status */
 }
 
-.hero-stat-item h2 {
-  font-size: 3.5rem;
-  margin: 0;
-  line-height: 1;
+/* Larger Hornet Box */
+.hornet-box-expanded {
+  grid-column: span 2;
+  grid-row: span 3;
+  min-height: 600px;
+  background: radial-gradient(circle at top left, rgba(229, 62, 62, 0.1), transparent), var(--glass-bg) !important;
 }
 
 /* --- 2. THE BENTO GRID ARCHITECTURE --- */

@@ -204,7 +204,8 @@ function App() {
            <Charts history={history} />
         </div>
 
-        <div className="bee-card row-2" style={{ padding: '25px' }}>
+        <div className="bee-card hornet-box-expanded" style={{ padding: '35px' }}>
+           <h3 style={{ fontSize: '0.9rem', color: '#888', marginBottom: '25px', letterSpacing: '2px' }}>🚨 THREAT ANALYSIS CONSOLE</h3>
            <ExternalSoundSection outsideSound={data.soundOutside} soundPrediction={soundPrediction} />
         </div>
 
