@@ -178,30 +178,55 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
 };
 
 const styles = {
-  card: { padding: '24px', marginTop: '20px' },
-  title: { margin: 0, fontSize: '0.8rem', color: '#ffcc00', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', display: 'flex', alignItems: 'center', gap: '10px' },
-  statusBanner: { padding: '25px', borderRadius: '15px', textAlign: 'center', marginBottom: '25px', border: '1px solid', transition: 'all 0.3s ease' },
-  label: { fontSize: '0.6rem', fontWeight: '800', color: '#666', letterSpacing: '2px' },
-  confText: { fontSize: '0.65rem', color: '#444', marginTop: '5px', fontWeight: '800', fontFamily: 'var(--font-digital)' },
-  labSection: { marginTop: '20px' },
-  subHeader: { fontSize: '0.7rem', color: '#444', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800' },
-  actionRow: { display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' },
-  fileInput: { fontSize: '0.7rem', color: '#666', flex: 1, minWidth: '150px' },
-  reportCard: { 
-    marginTop: '25px', 
-    padding: '20px', 
-    borderRadius: '15px', 
-    background: 'rgba(0,0,0,0.2)',
-    border: '1px solid rgba(255, 204, 0, 0.1)'
+  card: { 
+    background: 'rgba(30, 30, 30, 0.8)', 
+    padding: '25px', 
+    borderRadius: '16px', 
+    border: '1px solid rgba(255, 255, 255, 0.05)', 
+    boxShadow: '0 8px 32px rgba(0,0,0,0.3)', 
+    maxWidth: '800px',
+    margin: '20px auto', // This centers the card
+    backdropFilter: 'blur(12px)'
   },
-  reportHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' },
-  badge: { color: '#000', padding: '2px 8px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: '900', fontFamily: 'var(--font-digital)' },
-  progressContainer: { height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', marginBottom: '20px', overflow: 'hidden' },
+  title: { margin: '0 0 20px 0', fontSize: '1.2rem', color: '#fff', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', display: 'flex', alignItems: 'center', gap: '10px' },
+  statusBanner: { padding: '30px', borderRadius: '12px', textAlign: 'center', marginBottom: '25px', border: '1px solid transition: all 0.3s ease' },
+  label: { fontSize: '0.7rem', fontWeight: '800', color: '#888', letterSpacing: '2px' },
+  confText: { fontSize: '0.8rem', color: '#666', marginTop: '5px' },
+  labSection: { marginBottom: '20px' },
+  subHeader: { fontSize: '0.9rem', color: '#aaa', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px' },
+  actionRow: { display: 'flex', gap: '15px', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' },
+  fileInput: { fontSize: '0.8rem', color: '#ccc' },
+  btn: { 
+    background: '#ffb300', 
+    color: '#000', 
+    border: 'none', 
+    padding: '10px 20px', 
+    borderRadius: '8px', 
+    cursor: 'pointer', 
+    fontWeight: '800', 
+    textTransform: 'uppercase',
+    fontSize: '0.75rem',
+    transition: '0.2s',
+    boxShadow: '0 4px 15px rgba(255, 179, 0, 0.2)'
+  },
+  
+  // Professional Report Styling
+  reportCard: { 
+    marginTop: '20px', 
+    padding: '20px', 
+    borderRadius: '12px', 
+    borderLeft: '4px solid #ffb300', 
+    background: 'rgba(255, 179, 0, 0.03)',
+    border: '1px solid rgba(255, 179, 0, 0.1)'
+  },
+  reportHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', fontSize: '0.9rem' },
+  badge: { color: '#fff', padding: '4px 12px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 'bold', textTransform: 'uppercase' },
+  progressContainer: { height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', marginBottom: '20px', overflow: 'hidden' },
   progressBar: { height: '100%', transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' },
   metricGrid: { display: 'flex', gap: '15px' },
-  metricItem: { flex: 1, background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' },
-  miniLabel: { fontSize: '0.55rem', color: '#555', fontWeight: '800', display: 'block', marginBottom: '5px', letterSpacing: '1px' },
-  value: { fontSize: '1rem', fontWeight: '700', color: '#eee', fontFamily: 'var(--font-digital)' }
+  metricItem: { flex: 1, background: 'rgba(0,0,0,0.2)', padding: '15px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' },
+  miniLabel: { fontSize: '0.6rem', color: '#666', fontWeight: '800', display: 'block', marginBottom: '5px', letterSpacing: '1px' },
+  value: { fontSize: '1.2rem', fontWeight: '700', color: '#eee' }
 };
 
 export default HiveIntelligence;

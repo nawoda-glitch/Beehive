@@ -135,52 +135,52 @@ function App() {
 
   return (
     <div className="dashboard-container">
-      {/* BYTEBEES CYBER HEADER */}
+      {/* 1. SIDE NAVIGATION DOCK */}
+      <div className="side-dock">
+        <div className="dock-icon" title="Monitor">📊</div>
+        <div className="dock-icon" title="AI Chat">🤖</div>
+        <div className="dock-icon" title="External Hub">🌐</div>
+        <div className="dock-icon" title="Alerts">🚨</div>
+      </div>
+
+      {/* 2. CINEMATIC HEADER */}
       <header className="app-header">
         <div style={{ position: 'relative', zIndex: 10 }}>
-          <h1 style={{ margin: 0 }}>
-            BYTEBEES<span style={{color: '#fff', fontSize: '1rem', marginLeft: '10px'}}>v2.0_</span>
+          <h1 style={{ margin: 0, fontSize: '1rem', letterSpacing: '4px', opacity: 0.6 }}>
+            BEENET <span style={{fontWeight: 200}}>AI COMMAND</span>
           </h1>
-          <p style={{ margin: '0', color: '#ffcc00', letterSpacing: '5px', fontSize: '0.8rem', fontWeight: 700, opacity: 0.8 }}>
-             NEURAL_HIVE_NETWORK
-          </p>
         </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
-          <div style={{ textAlign: 'right' }}>
-            <div className="live-value-gold" style={{ fontSize: '1.2rem' }}>
-              {new Date().toLocaleTimeString()}
-            </div>
-            <div style={{ color: '#00ff41', fontWeight: 'bold', fontSize: '0.7rem', marginTop: '2px', fontFamily: 'monospace' }}>
-              SYNC: ONLINE_
-            </div>
-          </div>
-          
-          <a 
-            href="https://bee-monitor.onrender.com/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="portalBtn"
-          >
-            RENDER_HUB_
-          </a>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+           <a href="https://bee-monitor.onrender.com/" target="_blank" rel="noopener noreferrer" className="portalBtn" style={{ padding: '10px 24px', fontSize: '0.7rem' }}>
+             PRO NODE HUB ↗
+           </a>
+           <div className="live-value-gold" style={{ fontSize: '0.8rem' }}>{new Date().toLocaleTimeString()}</div>
         </div>
       </header>
-      
-      {/* 1. TOP ROW: PRIMARY SENSOR CARDS */}
-      <Cards data={data} />
-      
-      {/* 2. MIDDLE ROW: ANALYTICS & LIVE ACOUSTIC MONITORING */}
-      <div className="dashboard-main-grid">
-        <div className="left-col">
-           <Charts history={history} />
+
+      {/* 3. IMMERSIVE HERO SECTION */}
+      <div className="hero-section">
+        <div className="bee-card hero-main-card">
+          <div>
+            <span className="status-badge" style={{ color: '#38a169' }}>● REAL-TIME ANALYSIS ACTIVE</span>
+            <h1 style={{ fontSize: '3rem', marginTop: '20px', marginBottom: '10px' }}>HIVE CORE <span style={{fontWeight: 200}}>HEALTH</span></h1>
+            <p style={{ color: '#888', maxWidth: '400px' }}>Our Neural Network is currently processing acoustic signatures from Node 01. Queen vibration is stable.</p>
+          </div>
+          
+          <div className="hero-stats">
+            <div className="hero-stat-item">
+              <p style={{ margin: 0, fontSize: '0.7rem', color: '#666', letterSpacing: '2px' }}>RISK INDEX</p>
+              <h2 className="live-value-gold">{aiData?.risk_percent || "0"}%</h2>
+            </div>
+            <div className="hero-stat-item" style={{ borderLeft: '1px solid #333', paddingLeft: '40px' }}>
+              <p style={{ margin: 0, fontSize: '0.7rem', color: '#666', letterSpacing: '2px' }}>QUEEN STATUS</p>
+              <h2 style={{ fontSize: '2rem', color: '#fff', marginTop: '10px' }}>{hiveAnalysis?.queen_status || "Stable"}</h2>
+            </div>
+          </div>
         </div>
-        
-        <div className="right-col" style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
-           <ExternalSoundSection 
-             outsideSound={data.soundOutside} 
-             soundPrediction={soundPrediction} 
-           />
+
+        <div className="bee-card" style={{ padding: '30px' }}>
+           <h3 style={{ fontSize: '0.8rem', color: '#666' }}>Acoustic Spectrum</h3>
            <HiveIntelligence 
              liveInsideSound={data?.soundInside} 
              temp={data?.tempInside} 
@@ -189,14 +189,39 @@ function App() {
         </div>
       </div>
 
-      {/* 3. THIRD ROW: AI DECISIONS & MANUAL LAB TOOLS */}
-      <div className="dashboard-grid">
-         <DecisionSection aiData={aiData} />
-         <SoundAnalysisSection />
+      {/* 4. THE BENTO GRID */}
+      <div className="bento-grid">
+        {/* Sensor Cards (Mapped to Bento) */}
+        <div className="span-2"><Cards data={data} /></div>
+        
+        <div className="bee-card span-2" style={{ padding: '25px' }}>
+           <h3 style={{ fontSize: '0.8rem', color: '#666', marginBottom: '20px' }}>7-Day Forecast Projection</h3>
+           <DecisionSection aiData={aiData} />
+        </div>
+
+        <div className="bee-card span-3" style={{ padding: '25px' }}>
+           <h3 style={{ fontSize: '0.8rem', color: '#666', marginBottom: '20px' }}>Frequency & Humidity Historicals</h3>
+           <Charts history={history} />
+        </div>
+
+        <div className="bee-card row-2" style={{ padding: '25px' }}>
+           <ExternalSoundSection outsideSound={data.soundOutside} soundPrediction={soundPrediction} />
+        </div>
+
+        <div className="span-2"><SoundAnalysisSection /></div>
+        
+        <div className="bee-card" style={{ padding: '25px' }}>
+           <h3 style={{ fontSize: '0.8rem', color: '#666' }}>External Node</h3>
+           <a href="https://bee-monitor.onrender.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+             <div style={{ height: '150px', background: 'rgba(255,179,0,0.05)', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '20px', border: '1px dashed #444' }}>
+               <span style={{ color: '#ffb300' }}>Open Hub ↗</span>
+             </div>
+           </a>
+        </div>
       </div>
 
-      {/* 4. BOTTOM ROW: KNOWLEDGE BASE & EXTERNAL HUB */}
-      <div className="bot-full-width" style={{ display: 'grid', gridTemplateColumns: '450px 1fr', gap: '20px', alignItems: 'start' }}>
+      {/* 5. BOTTOM UTILITIES */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
          <HiveKnowledgeBot data={data} aiData={aiData} />
          <ExternalHub />
       </div>

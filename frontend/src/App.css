@@ -1,145 +1,136 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@300;700;800&display=swap');
 
 :root {
-  --byte-gold: #ffcc00;
-  --pollen-glow: rgba(255, 204, 0, 0.4);
-  --deep-hive: #0a0a0a;
-  --honey-drip: linear-gradient(180deg, var(--byte-gold), transparent);
-  --font-digital: 'VT323', monospace;
-  --font-cyber: 'Space Grotesk', sans-serif;
+  --primary-gold: #ffb300;
+  --glow-gold: rgba(255, 179, 0, 0.4);
+  --bg-deep: #050505;
+  --glass-bg: rgba(20, 20, 20, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 body {
   margin: 0;
-  background-color: var(--deep-hive);
-  font-family: var(--font-cyber);
+  background-color: var(--bg-deep);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
   color: #fff;
-  background-image: 
-    linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)),
-    url("data:image/svg+xml,%3Csvg width='52' height='30' viewBox='0 0 52 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M26 0l26 15-26 15L0 15z' fill='%23ffcc00' fill-opacity='0.02'/%3E%3C/svg%3E");
 }
 
-.dashboard-container {
-  min-height: 100vh;
-  padding: 40px;
-  max-width: 1500px;
-  margin: 0 auto;
-  position: relative;
+/* --- 1. IMMERSIVE HERO SECTION --- */
+.hero-section {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 30px;
+  margin-bottom: 40px;
+  perspective: 1000px;
 }
 
-/* --- THE BYTEBEES HEADER --- */
-.app-header {
+.hero-main-card {
+  height: 450px;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  padding: 20px 40px;
-  background: rgba(20, 20, 20, 0.8);
-  border-bottom: 2px solid var(--byte-gold);
-  border-radius: 0 0 40px 40px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  margin-bottom: 50px;
-  position: relative;
-  overflow: hidden;
+  padding: 40px !important;
+  background: radial-gradient(circle at top right, rgba(255, 179, 0, 0.15), transparent), var(--glass-bg) !important;
 }
 
-/* Honey Drip Decoration */
-.app-header::after {
-  content: "";
-  position: absolute;
-  top: 0; right: 100px; width: 15px; height: 60px;
-  background: var(--byte-gold);
-  border-radius: 0 0 10px 10px;
-  box-shadow: 0 5px 15px var(--pollen-glow);
-  animation: drip 4s infinite ease-in-out;
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 20px;
 }
 
-@keyframes drip {
-  0%, 100% { height: 60px; }
-  50% { height: 85px; }
-}
-
-.app-header h1 {
-  font-family: var(--font-digital);
-  font-size: 4rem;
+.hero-stat-item h2 {
+  font-size: 3.5rem;
   margin: 0;
-  color: var(--byte-gold);
-  text-shadow: 0 0 20px var(--pollen-glow);
-  letter-spacing: 5px;
+  line-height: 1;
 }
 
-/* --- HONEYCOMB GRID CARDS --- */
+/* --- 2. THE BENTO GRID ARCHITECTURE --- */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(200px, auto);
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.span-2 { grid-column: span 2; }
+.span-3 { grid-column: span 3; }
+.row-2 { grid-row: span 2; }
+
+/* --- 3. PAGE FLOW & SCROLLING --- */
+.dashboard-container {
+  max-width: 1800px;
+  padding: 0 40px 100px 40px;
+}
+
+.app-header {
+  border: none;
+  background: transparent !important;
+  padding: 60px 0 30px 0;
+  border-radius: 0;
+  backdrop-filter: none;
+}
+
+/* Glassmorphism 3.0 */
 .bee-card {
-  background: rgba(30, 30, 30, 0.6) !important;
-  border: 1px solid rgba(255, 204, 0, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.03) !important;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Side Navigation Dock */
+.side-dock {
+  position: fixed;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: rgba(20, 20, 20, 0.5);
   backdrop-filter: blur(10px);
-  border-radius: 20px !important;
-  padding: 30px !important;
-  transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-  position: relative;
+  padding: 15px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 100;
 }
 
-.bee-card::before {
-  content: "🐝";
-  position: absolute;
-  top: 15px; right: 15px;
+.dock-icon {
   font-size: 1.2rem;
-  opacity: 0.2;
-}
-
-.bee-card:hover {
-  transform: scale(1.03);
-  border-color: var(--byte-gold) !important;
-  box-shadow: 0 0 30px rgba(255, 204, 0, 0.2) !important;
-  background: rgba(40, 40, 40, 0.8) !important;
-}
-
-/* --- CYBER DATA STYLING --- */
-.live-value-gold {
-  font-family: var(--font-digital);
-  font-size: 2.5rem;
-  color: var(--byte-gold);
-  text-shadow: 0 0 10px var(--pollen-glow);
-}
-
-.portalBtn {
-  background: var(--byte-gold) !important;
-  color: #000 !important;
-  font-family: var(--font-digital);
-  font-size: 1.2rem;
-  padding: 10px 25px;
-  border-radius: 5px;
-  text-transform: uppercase;
-  border: 2px solid #000;
-  box-shadow: 4px 4px 0 #000;
-  transition: 0.2s;
+  opacity: 0.5;
+  transition: 0.3s;
   cursor: pointer;
 }
 
-.portalBtn:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 #000;
-  background: #fff !important;
+.dock-icon:hover {
+  opacity: 1;
+  transform: scale(1.2);
+  color: var(--primary-gold);
 }
-
-/* --- GRID LAYOUT --- */
-.dashboard-main-grid {
   display: grid;
   grid-template-columns: 1fr 400px;
   gap: 30px;
+  margin-bottom: 30px;
 }
 
-.bot-full-width {
+.dashboard-grid {
   display: grid;
-  grid-template-columns: 450px 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 30px;
-  margin-top: 50px;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-main-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Custom Scrollbar */
-::-webkit-scrollbar { width: 12px; }
-::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #050505; }
 ::-webkit-scrollbar-thumb { 
-  background: var(--byte-gold); 
-  border: 3px solid #111;
-  border-radius: 10px;
+  background: linear-gradient(var(--bg-deep), var(--primary-gold)); 
+  border-radius: 5px; 
 }

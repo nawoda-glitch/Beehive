@@ -117,36 +117,34 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
   const renderPredictionBox = (title, text, confidence, isHornet, isActive) => (
     <div style={{
       ...styles.predictionBox, 
-      backgroundColor: isActive ? (isHornet ? 'rgba(229, 62, 62, 0.1)' : 'rgba(56, 161, 105, 0.05)') : 'rgba(255,255,255,0.01)',
-      borderColor: isActive ? (isHornet ? '#e53e3e' : '#38a169') : 'rgba(255,255,255,0.05)',
-      color: isActive ? (isHornet ? '#ff4d4d' : '#38a169') : '#555',
-      minHeight: '140px'
+      backgroundColor: isActive ? (isHornet ? 'rgba(229, 62, 62, 0.15)' : 'rgba(56, 161, 105, 0.1)') : 'rgba(255,255,255,0.02)',
+      borderColor: isActive ? (isHornet ? '#ff4d4d' : '#38a169') : '#333',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center'
     }}>
       <span style={styles.label}>{title}</span>
       <h2 style={{ 
-        color: 'inherit',
-        fontSize: '1.2rem',
-        margin: '12px 0',
+        color: isActive ? (isHornet ? '#ff4d4d' : '#38a169') : '#666', 
+        fontSize: '1.6rem',
+        margin: '10px 0',
         textTransform: 'uppercase',
-        letterSpacing: '1px',
-        wordBreak: 'break-word',
-        lineHeight: '1.2',
-        fontFamily: 'var(--font-digital)'
+        letterSpacing: '2px',
+        textShadow: isActive ? (isHornet ? '0 0 15px rgba(255, 77, 77, 0.6)' : '0 0 15px rgba(56, 161, 105, 0.4)') : 'none'
       }}>
         {text}
       </h2>
       {isActive && (
         <span style={{
-           background: 'rgba(0,0,0,0.5)',
-           padding: '4px 12px',
-           borderRadius: '4px',
-           fontSize: '0.65rem',
+           background: 'rgba(0,0,0,0.3)',
+           padding: '4px 10px',
+           borderRadius: '12px',
+           fontSize: '0.8rem',
            color: '#fff',
-           fontWeight: 'bold',
-           fontFamily: 'var(--font-digital)',
-           border: '1px solid rgba(255,255,255,0.1)'
+           fontWeight: 'bold'
         }}>
-           CONFIDENCE: {confidence}%
+           Confidence: {confidence}%
         </span>
       )}
     </div>
@@ -155,47 +153,71 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
   return (
     <div style={styles.card} className="bee-card">
       <div style={styles.header}>
-        <span style={styles.icon}>🛰️</span>
+        <span style={styles.icon}>📡</span>
         <h3 style={styles.title}>External Acoustic Hornets Monitor</h3>
         
+        {/* Live Audio Stream Button */}
         <button 
           onClick={isStreaming ? stopLiveAudioStream : startLiveAudioStream}
-          className="portalBtn"
           style={{
+            ...styles.btn, 
             marginLeft: 'auto',
-            padding: '6px 15px',
-            fontSize: '0.6rem',
-            background: isStreaming ? '#fff' : 'var(--byte-gold)',
-            color: '#000'
+            backgroundColor: isStreaming ? '#ffb300' : '#e53e3e',
+            animation: isStreaming ? 'pulse 2s infinite' : 'none'
           }}
         >
-          {isStreaming ? 'STOP LIVE STREAM' : 'START LIVE MIC STREAM'}
+          {isStreaming ? '🛑 Stop Live Mic Stream' : '🎙️ Start Live Mic Stream'}
         </button>
       </div>
       
       <div style={styles.mainGrid}>
+        {/* Real-time Value Display */}
         <div style={styles.statBox}>
-          <span style={styles.label}>OUTSIDE AMBIENT SOUND</span>
-          <h2 className="live-value-gold" style={{ fontSize: '2.2rem', margin: '10px 0' }}>{outsideSound || 0} <small style={{fontSize: '1rem'}}>dB</small></h2>
+          <span style={styles.label}>Outside Ambient Sound</span>
+          <h2 style={styles.value}>{outsideSound || 0} dB</h2>
+          {isStreaming && <span style={{color: '#ffb300', fontSize: '0.7rem'}}>Streaming Live Audio...</span>}
         </div>
 
-        {renderPredictionBox("LIVE CLASSIFICATION", liveDetectionText, liveConfidenceVal, isLiveHornet, true)}
-        {renderPredictionBox("MANUAL CLASSIFICATION", manualDetectionText, manualConfidenceVal, isManualHornet, !!manualPrediction)}
+        {/* AI Prediction Display - LIVE */}
+        <div style={{ position: 'relative' }}>
+          {renderPredictionBox("Live Classification", liveDetectionText, liveConfidenceVal, isLiveHornet, true)}
+          {isStreaming && (
+            <div style={{
+              position: 'absolute',
+              top: '5px',
+              right: '5px',
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: '#ffb300',
+              boxShadow: '0 0 10px #ffb300',
+              animation: 'pulse 1.5s infinite'
+            }} />
+          )}
+        </div>
+
+        {/* AI Prediction Display - MANUAL */}
+        {renderPredictionBox("Manual Classification", manualDetectionText, manualConfidenceVal, isManualHornet, !!manualPrediction)}
       </div>
 
+      {error && <div style={{ color: '#ff4d4d', fontSize: '0.8rem', marginTop: '10px', textAlign: 'center' }}>{error}</div>}
+
+
+      {/* Manual File Upload Section */}
       <div style={styles.uploadSection}>
         <h4 style={styles.subHeader}>🔍 Manual Threat Analysis</h4>
         <div style={styles.actionRow}>
           <input type="file" accept=".wav" onChange={(e) => setFile(e.target.files[0])} style={styles.fileInput} />
-          <button onClick={analyzeExternalSound} disabled={loading} className="portalBtn" style={{ padding: '8px 16px', fontSize: '0.7rem' }}>
-            {loading ? "PROCESSING..." : "ANALYZE AUDIO"}
+          <button onClick={analyzeExternalSound} disabled={loading} style={styles.btn}>
+            {loading ? "⚙️ Processing..." : "Analyze Audio"}
           </button>
           {manualPrediction && (
             <button onClick={() => setManualPrediction(null)} style={styles.clearBtn}>
-              CLEAR
+              Clear Result
             </button>
           )}
         </div>
+        {error && <p style={{color: '#ff4d4d', fontSize: '0.8rem', marginTop: '5px'}}>{error}</p>}
       </div>
 
       {(isLiveHornet || isManualHornet) && (
@@ -208,59 +230,66 @@ const ExternalSoundSection = ({ outsideSound, soundPrediction: externalPredictio
 };
 
 const styles = {
-  card: { padding: '24px', marginTop: '20px' },
-  header: { display: 'flex', alignItems: 'center', marginBottom: '25px' },
+  card: { 
+    background: 'rgba(30, 30, 30, 0.8)', 
+    padding: '24px', 
+    borderRadius: '16px', 
+    marginTop: '20px',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(12px)'
+  },
+  header: { display: 'flex', alignItems: 'center', marginBottom: '20px' },
   icon: { marginRight: '10px', fontSize: '1.4rem' },
-  title: { fontSize: '0.8rem', fontWeight: '800', color: '#ffcc00', textTransform: 'uppercase', letterSpacing: '2px', margin: 0 },
-  mainGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px' },
+  title: { fontSize: '0.9rem', fontWeight: '700', color: '#fff', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 },
+  mainGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' },
   statBox: { 
-    padding: '20px', 
-    background: 'rgba(255, 255, 255, 0.02)', 
-    borderRadius: '15px',
+    padding: '15px', 
+    background: 'rgba(255, 255, 255, 0.03)', 
+    borderRadius: '12px',
     border: '1px solid rgba(255, 255, 255, 0.05)',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center'
+    justifyContent: 'center'
   },
-  label: { fontSize: '0.6rem', color: '#666', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '800' },
-  predictionBox: { 
-    padding: '20px', 
-    borderRadius: '15px', 
-    border: '1px solid', 
-    textAlign: 'center', 
-    display: 'flex', 
-    flexDirection: 'column', 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
+  label: { fontSize: '0.7rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px' },
+  value: { margin: '8px 0', fontSize: '1.8rem', color: '#fff', fontWeight: 'bold' },
+  predictionBox: { padding: '15px', borderRadius: '12px', border: '1px solid', textAlign: 'center', transition: 'all 0.3s ease' },
+  confidence: { fontSize: '0.75rem', color: '#666', margin: 0 },
   alarm: { 
-    marginTop: '25px', 
-    padding: '15px', 
+    marginTop: '20px', 
+    padding: '12px', 
     background: '#e53e3e', 
     color: '#fff', 
-    borderRadius: '12px', 
+    borderRadius: '10px', 
     textAlign: 'center', 
-    fontWeight: '900',
-    fontSize: '0.8rem',
-    textTransform: 'uppercase',
-    letterSpacing: '1px'
+    fontWeight: 'bold',
+    boxShadow: '0 0 20px rgba(229, 62, 62, 0.4)'
   },
-  uploadSection: { marginTop: '30px' },
-  subHeader: { fontSize: '0.7rem', color: '#444', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800' },
-  actionRow: { display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' },
-  fileInput: { fontSize: '0.7rem', color: '#666', flex: 1, minWidth: '200px' },
+  uploadSection: { marginTop: '20px' },
+  subHeader: { fontSize: '0.8rem', color: '#aaa', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px' },
+  actionRow: { display: 'flex', gap: '15px', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' },
+  fileInput: { fontSize: '0.8rem', color: '#ccc' },
+  btn: { 
+    background: '#e53e3e', 
+    color: '#fff', 
+    border: 'none', 
+    padding: '8px 16px', 
+    borderRadius: '8px', 
+    cursor: 'pointer', 
+    fontWeight: '800', 
+    textTransform: 'uppercase',
+    fontSize: '0.75rem',
+    transition: '0.2s',
+    boxShadow: '0 4px 15px rgba(229, 62, 62, 0.2)'
+  },
   clearBtn: {
     background: 'transparent',
-    color: '#555',
-    border: '1px solid #333',
+    color: '#aaa',
+    border: '1px solid #555',
     padding: '8px 16px',
-    borderRadius: '5px',
-    fontSize: '0.65rem',
+    borderRadius: '8px',
+    fontSize: '0.75rem',
     cursor: 'pointer',
-    fontWeight: '800',
-    textTransform: 'uppercase'
   }
 };
 
