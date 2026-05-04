@@ -3,7 +3,7 @@ import { db } from '../services/firebase';
 import { ref, set } from 'firebase/database';
 import { API_BASE_URL } from "../config";
 
-const HiveIntelligence = ({ liveInsideSound, temp, timestamp, queenStatus }) => {
+const HiveIntelligence = ({ liveInsideSound, temp, timestamp }) => {
   const [predictionData, setPredictionData] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [file, setFile] = useState(null);
@@ -22,11 +22,8 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp, queenStatus }) => 
     return '#e53e3e'; // Red
   };
 
-  const [isStreaming, setIsStreaming] = useState(false);
-  const streamIntervalRef = useRef(null);
-
   useEffect(() => {
-    if (liveInsideSound > 0 && !isStreaming) fetchLivelyPrediction();
+    if (liveInsideSound > 0) fetchLivelyPrediction();
   }, [timestamp]);
 
   const fetchLivelyPrediction = async () => {
@@ -61,63 +58,11 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp, queenStatus }) => 
     finally { setLoading(false); }
   };
 
-  // --- LIVE MIC STREAM FOR QUEEN STATE ---
-  const startLiveMic = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      setIsStreaming(true);
-      
-      const recordAndSend = () => {
-        const mediaRecorder = new MediaRecorder(stream);
-        const audioChunks = [];
-        mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-        mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-          const formData = new FormData();
-          formData.append('file', audioBlob, 'live_queen.wav');
-          try {
-            const res = await fetch("/api/predict-hive-intelligence", { method: "POST", body: formData });
-            const result = await res.json();
-            setPredictionData(result);
-          } catch (err) { console.error("Mic Stream Error:", err); }
-        };
-        mediaRecorder.start();
-        setTimeout(() => { if (mediaRecorder.state === 'recording') mediaRecorder.stop(); }, 3000);
-      };
-
-      recordAndSend();
-      streamIntervalRef.current = setInterval(recordAndSend, 3500);
-    } catch (err) {
-      alert("Microphone access denied!");
-    }
-  };
-
-  const stopLiveMic = () => {
-    setIsStreaming(false);
-    clearInterval(streamIntervalRef.current);
-  };
-
-  useEffect(() => {
-    return () => clearInterval(streamIntervalRef.current);
-  }, []);
-
   const manualConf = getConfidence(manualData);
 
   return (
     <div style={styles.card} className="bee-card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h3 style={{ ...styles.title, margin: 0 }}><span>🧠</span> Hive Brain Intelligence</h3>
-        <button 
-          onClick={isStreaming ? stopLiveMic : startLiveMic}
-          style={{
-            ...styles.btn, 
-            backgroundColor: isStreaming ? '#ff4d4d' : '#ffb300',
-            color: isStreaming ? '#fff' : '#000'
-          }}
-        >
-          {isStreaming ? '🛑 Stop Mic' : '🎙️ Start Live Mic'}
-        </button>
-      </div>
+      <h3 style={styles.title}><span>🧠</span> Hive Brain Intelligence</h3>
       
       {/* 1. TOP BANNER - Dark Gold Theme */}
       <div style={{
@@ -125,15 +70,15 @@ const HiveIntelligence = ({ liveInsideSound, temp, timestamp, queenStatus }) => 
         backgroundColor: liveInsideSound <= 0 ? "rgba(255,255,255,0.03)" : "rgba(255, 179, 0, 0.05)",
         borderColor: liveInsideSound <= 0 ? "#333" : "rgba(255, 179, 0, 0.3)"
       }}>
-        <span style={styles.label}>QUEEN BEE PRESENCE</span>
+        <span style={styles.label}>QUEEN STATE DETECTION</span>
         {liveInsideSound <= 0 ? (
           <h2 style={{ color: "#666", margin: "10px 0" }}>🔇 Sensors Offline</h2>
         ) : (
           <h2 style={{ color: '#ffb300', margin: "10px 0", textShadow: '0 0 15px rgba(255,179,0,0.3)' }}>
-            {queenStatus || getResultText(predictionData)}
+            {getResultText(predictionData)}
           </h2>
         )}
-        <p style={styles.confText}>Real-time Node Analysis Sync</p>
+        <p style={styles.confText}>Confidence: {getConfidence(predictionData)}%</p>
       </div>
 
       {/* 2. LABORATORY ANALYSIS SECTION */}
@@ -184,9 +129,9 @@ const styles = {
     borderRadius: '16px', 
     border: '1px solid rgba(255, 255, 255, 0.05)', 
     boxShadow: '0 8px 32px rgba(0,0,0,0.3)', 
+    margin: '20px auto',
     maxWidth: '800px',
-    margin: '20px auto', // This centers the card
-    backdropFilter: 'blur(12px)'
+    backdropFilter: 'blur(12px)',
   },
   title: { margin: '0 0 20px 0', fontSize: '1.2rem', color: '#fff', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', display: 'flex', alignItems: 'center', gap: '10px' },
   statusBanner: { padding: '30px', borderRadius: '12px', textAlign: 'center', marginBottom: '25px', border: '1px solid transition: all 0.3s ease' },
