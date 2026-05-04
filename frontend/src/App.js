@@ -148,6 +148,8 @@ function App() {
            </a>
            <div className="live-value-gold" style={{ fontSize: '0.8rem' }}>{new Date().toLocaleTimeString()}</div>
         </div>
+      </header>
+
       {/* 3. BENTO COMMAND HUB */}
       <div className="bento-grid">
         {/* TOP LEFT: HORNET THREAT CONSOLE */}
